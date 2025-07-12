@@ -1,24 +1,22 @@
 import { Request, Response } from "express";
-import activityService from "../services/activity.service";
+import authService from "../services/auth.service";
 
 class AuthController {
   async register(req: Request, res: Response) {
     try {
-      const { userId, date, type, steps, distanceKm } = req.body;
-      const activity = await activityService.createActivity(userId, new Date(date), type, steps, distanceKm);
-      res.status(201).json(activity);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create activity" });
+      const user = await authService.register(req.body);
+      res.status(201).json(user);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
     }
   }
 
   async login(req: Request, res: Response) {
     try {
-      const { userId, date, type, steps, distanceKm } = req.body;
-      const activity = await activityService.createActivity(userId, new Date(date), type, steps, distanceKm);
-      res.status(201).json(activity);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create activity" });
+      const token = await authService.login(req.body);
+      res.status(200).json({ token });
+    } catch (err) {
+      res.status(401).json({ error: (err as Error).message });
     }
   }
 }
