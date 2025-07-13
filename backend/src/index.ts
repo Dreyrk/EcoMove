@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import activityRouter from "./routes/activity.routes";
 import authRouter from "./routes/auth.routes";
-import authMiddleware from "./middlewares/auth.middleware";
+import statsRouter from "./routes/stats.routes";
+import { errorHandler } from "./middlewares/error.middleware";
 
 dotenv.config();
 
@@ -15,8 +16,11 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api/activities", authMiddleware.verifyToken, activityRouter);
+app.use("/api/activities", activityRouter);
+app.use("/api/stats", statsRouter);
 app.use("/api/auth", authRouter);
+
+app.use(errorHandler);
 
 // Start server
 app.listen(port, () => {
