@@ -5,14 +5,12 @@ const activityRouter = router;
 
 // GET Requests
 activityRouter.get("/", activityController.getAllActivities);
-activityRouter.get("/:id", activityController.getActivityById);
-activityRouter.get("/user/:userId", activityController.getActivityById);
+activityRouter.get("/user/:userId", activityController.getActivitiesByUserId);
 
 // POST Requests
 activityRouter.post("/", activityController.createActivity);
 
 // PUT Requests
-activityRouter.put("/:id", activityController.updateActivity);
 
 // DELETE Requests
 activityRouter.delete("/:id", activityController.deleteActivity);
