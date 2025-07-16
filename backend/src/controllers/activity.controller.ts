@@ -1,26 +1,36 @@
 import { Request, Response, NextFunction } from "express";
 import activityService from "../services/activity.service";
 import { getPagination } from "../utils/pagination";
-import { successResponse } from "../utils/response";
+import { errorResponse, successResponse } from "../utils/response";
+import userService from "../services/user.service";
+import { ActivitySchema } from "../schemas/activity.schema";
+import { AppError } from "../middlewares/error.middleware";
 
 class ActivityController {
   async createActivity(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, date, type, steps, distanceKm } = req.body;
+      const validatedData = ActivitySchema.parse(req.body);
+
+      const { userId, date, type, steps, distanceKm } = validatedData;
 
       const activity = await activityService.createActivity(userId, new Date(date), type, steps, distanceKm);
 
       res.status(201).json(successResponse(activity));
-    } catch (e) {
-      next(e);
+    } catch (e: any) {
+      if (e.name === "ZodError") {
+        const errorMessages = e.errors.map((err: any) => err.message);
+        next(new AppError(errorMessages.join(", "), 400));
+      } else {
+        next(e);
+      }
     }
   }
 
   async getAllActivities(req: Request, res: Response, next: NextFunction) {
     try {
-      const { page, perPage, skip, take } = getPagination(req);
+      const pagination = getPagination(req);
 
-      const { data, meta } = await activityService.getAllActivities(page, perPage, skip, take);
+      const { data, meta } = await activityService.getAllActivities(pagination);
 
       res.status(200).json(successResponse(data, meta));
     } catch (e) {
@@ -33,7 +43,16 @@ class ActivityController {
       const { userId } = req.params;
 
       const id = Number(userId);
-      const activities = await activityService.getActivitiesByUserId(id);
+
+      const user = userService.getUserById(id);
+
+      if (!user) {
+        res.status(404).json(errorResponse("Utilisateur non trouvé"));
+      }
+
+      const pagination = getPagination(req);
+
+      const activities = await activityService.getActivitiesByUserId(id, pagination);
 
       res.status(200).json(successResponse(activities));
     } catch (e) {
