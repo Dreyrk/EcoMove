@@ -1,5 +1,8 @@
 import { PrismaClient, Activity, ActivityType } from "@prisma/client";
 import db from "../lib/db";
+import { AppError } from "../middlewares/error.middleware";
+import { PaginationParams } from "../utils/pagination";
+import { DataResponse } from "../types";
 
 class ActivityService {
   private db: PrismaClient;
@@ -21,7 +24,7 @@ class ActivityService {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     if (date > today) {
-      throw new Error("La date de l'activité ne peut pas être dans le futur.");
+      throw new AppError("La date de l'activité ne peut pas être dans le futur.", 400);
     }
 
     // Vérifie si une activité pour ce userId + date existe déjà
@@ -32,14 +35,14 @@ class ActivityService {
     });
 
     if (existing) {
-      throw new Error("Une activité a déjà été déclarée pour cette date.");
+      throw new AppError("Une activité a déjà été déclarée pour cette date.", 409);
     }
 
     // Calcul auto si MARCHE
     let finalDistance = distanceKm ?? 0;
     if (type === "MARCHE") {
       if (!steps) {
-        throw new Error("Le nombre de pas est requis pour une activité MARCHE.");
+        throw new AppError("Le nombre de pas est requis pour une activité MARCHE.", 400);
       }
       finalDistance = steps / 1500;
     }
@@ -56,7 +59,9 @@ class ActivityService {
   }
 
   // Liste paginée des activités
-  async getAllActivities(skip: number, take: number, page: number, perPage: number) {
+  async getAllActivities(paginationMeta: PaginationParams): Promise<DataResponse<Activity>> {
+    const { skip, take, page, per_page } = paginationMeta;
+
     const [activities, total] = await Promise.all([
       this.db.activity.findMany({
         skip,
@@ -72,22 +77,38 @@ class ActivityService {
     ]);
 
     return {
-      status: "success",
       data: activities,
       meta: {
         total,
+        skip,
+        take,
         page,
-        per_page: perPage,
+        per_page,
       },
     };
   }
 
   // Activités d'un utilisateur
-  async getActivitiesByUserId(userId: number): Promise<Activity[]> {
-    return this.db.activity.findMany({
+  async getActivitiesByUserId(userId: number, paginationMeta: PaginationParams): Promise<DataResponse<Activity>> {
+    const { skip, take, page, per_page } = paginationMeta;
+
+    const activities = await this.db.activity.findMany({
       where: { userId },
       orderBy: { date: "desc" },
+      skip,
+      take,
     });
+
+    return {
+      data: activities,
+      meta: {
+        skip,
+        take,
+        page,
+        per_page,
+        total: activities.length,
+      },
+    };
   }
 
   // Suppression (optionnel, à restreindre à l'admin)

@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import db from "../lib/db";
 import userService from "./user.service";
 import { getJwtSecret } from "../utils/env";
+import { AppError } from "../middlewares/error.middleware";
 
 class AuthService {
   private db: PrismaClient;
@@ -14,7 +15,7 @@ class AuthService {
 
   async register({ name, email, password, teamId }: { name: string; email: string; password: string; teamId: number }) {
     const existing = await userService.getUserByEmail(email);
-    if (existing) throw new Error("Email already registered");
+    if (existing) throw new AppError("Email already registered", 409);
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await userService.createUser({ name, email, password: hashedPassword, teamId });
@@ -25,10 +26,10 @@ class AuthService {
 
   async login({ email, password }: { email: string; password: string }) {
     const user = await userService.getUserByEmail(email);
-    if (!user) throw new Error("Invalid credentials");
+    if (!user) throw new AppError("Invalid credentials", 400);
 
     const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) throw new Error("Invalid credentials");
+    if (!isValid) throw new AppError("Invalid credentials", 400);
 
     const JWT_SECRET = getJwtSecret();
 

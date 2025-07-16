@@ -5,6 +5,7 @@ import activityRouter from "./routes/activity.routes";
 import authRouter from "./routes/auth.routes";
 import statsRouter from "./routes/stats.routes";
 import { errorHandler } from "./middlewares/error.middleware";
+import teamRouter from "./routes/team.routes";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/activities", activityRouter);
+app.use("/api/team", teamRouter);
 app.use("/api/stats", statsRouter);
 app.use("/api/auth", authRouter);
 
