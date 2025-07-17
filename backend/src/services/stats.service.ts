@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import db from "../lib/db";
 import { PaginationParams } from "../utils/pagination";
+import { DataResponse } from "../types";
 
 class StatsService {
   private db: PrismaClient;
@@ -10,18 +11,65 @@ class StatsService {
   }
 
   async getGeneralStats() {
-    const totalKm = await this.db.activity.aggregate({
-      _sum: { distanceKm: true },
-    });
+    // 1. Total participants (utilisateurs uniques)
+    const totalParticipants = await this.db.user.count();
 
-    const totalUsers = await this.db.user.count();
+    // 2. Total des équipes
     const totalTeams = await this.db.team.count();
 
+    // 3. Récupérer toutes les activités avec les statistiques
+    const activities = await this.db.activity.findMany({
+      select: {
+        distanceKm: true,
+        type: true,
+        date: true,
+        userId: true,
+      },
+    });
+
+    // 4. Calculer la distance totale
+    const totalDistance = activities.reduce((sum, activity) => sum + activity.distanceKm, 0);
+
+    // 5. Calculer le type d'activité le plus populaire
+    const activityTypeCount = activities.reduce((acc, activity) => {
+      acc[activity.type] = (acc[activity.type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const topActivityType = Object.entries(activityTypeCount).reduce((a, b) =>
+      activityTypeCount[a[0]] > activityTypeCount[b[0]] ? a : b
+    )[0];
+
+    // 6. Calculer la durée du challenge (du plus ancien au plus récent)
+    const dates = activities.map((activity) => activity.date);
+    const oldestDate = new Date(Math.min(...dates.map((date) => date.getTime())));
+    const newestDate = new Date(Math.max(...dates.map((date) => date.getTime())));
+    const challengeDuration = Math.ceil((newestDate.getTime() - oldestDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    // 7. Calculer les jours actifs (jours uniques avec au moins une activité)
+    const uniqueDates = new Set(activities.map((activity) => activity.date.toDateString()));
+    const activeDays = uniqueDates.size;
+
+    // 8. Calculer la distance moyenne par jour
+    const avgDailyDistance = activeDays > 0 ? totalDistance / activeDays : 0;
+
+    // 9. Calculer le CO2 économisé
+    // Estimation : 1 km à vélo économise ~0.21 kg CO2 vs voiture
+    // 1 km de marche économise ~0.19 kg CO2 vs voiture
+    const co2Saved = activities.reduce((sum, activity) => {
+      const factor = activity.type === "VELO" ? 0.21 : 0.19;
+      return sum + activity.distanceKm * factor;
+    }, 0);
+
     return {
-      totalDistance: totalKm._sum.distanceKm || 0,
-      totalParticipants: totalUsers,
-      totalTeams: totalTeams,
-      averageDistancePerParticipant: totalUsers > 0 ? (totalKm._sum.distanceKm || 0) / totalUsers : 0,
+      totalParticipants,
+      totalDistance: Math.round(totalDistance * 10) / 10, // Arrondir à 1 décimale
+      totalTeams,
+      avgDailyDistance: Math.round(avgDailyDistance * 10) / 10,
+      topActivityType: topActivityType,
+      challengeDuration,
+      activeDays,
+      co2Saved: Math.round(co2Saved * 10) / 10,
     };
   }
 
@@ -195,7 +243,10 @@ class StatsService {
     };
   }
 
-  async getUserProgress(userId: number, pagination: PaginationParams) {
+  async getUserProgress(
+    userId: number,
+    pagination: PaginationParams
+  ): Promise<DataResponse<{ date: string; bike: number; walk: number }>> {
     const today = new Date();
     const startDate = new Date();
     startDate.setDate(today.getDate() - 29); // 30 jours glissants
