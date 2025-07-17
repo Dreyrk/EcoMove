@@ -1,5 +1,13 @@
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient, User, UserRoleType } from "@prisma/client";
 import db from "../lib/db";
+
+type SelectedUser = {
+  email: string;
+  password: string;
+  role: UserRoleType;
+  id: number;
+};
+
 class UserService {
   private db: PrismaClient;
 
@@ -8,17 +16,33 @@ class UserService {
   }
 
   async createUser(data: { name: string; email: string; password: string; teamId: number }): Promise<User> {
-    const createdUser = await db.user.create({ data });
+    const createdUser = await this.db.user.create({ data });
 
     return createdUser;
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    return await db.user.findUnique({ where: { email } });
+  async getUserByEmail(email: string): Promise<SelectedUser | null> {
+    return await this.db.user.findUnique({
+      where: { email },
+      select: { email: true, password: true, role: true, id: true },
+    });
   }
 
-  async getUserById(id: number): Promise<User | null> {
-    return await db.user.findUnique({ where: { id } });
+  async getUserById(id: number): Promise<Partial<User> | null> {
+    return await this.db.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        team: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
   }
 }
 

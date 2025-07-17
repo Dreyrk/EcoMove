@@ -13,7 +13,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
@@ -33,13 +33,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    // Check if user is logged in (mock implementation)
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/auth/profile", {
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.data);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchUser();
   }, []);
 
   useEffect(() => {
@@ -49,26 +64,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, isLoading, pathname, router]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Mock login - in real app, this would call your API
-    if (email === "demo@company.com" && password === "password") {
-      const mockUser = {
-        id: "1",
-        name: "John Doe",
-        email: "demo@company.com",
-        team: "Engineering",
-      };
-      setUser(mockUser);
-      localStorage.setItem("user", JSON.stringify(mockUser));
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) return false;
+
+      await fetchUser();
       router.push("/dashboard");
       return true;
+    } catch (error) {
+      console.error("Login failed:", error);
+      return false;
     }
-    return false;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    router.push("/login");
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+      setUser(null);
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>;

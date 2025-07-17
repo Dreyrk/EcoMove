@@ -1,14 +1,10 @@
-import { Request } from "express";
 import { PaginationParams } from "../utils/pagination";
 
 export interface TokenPayload {
-  userId: number;
+  id: number;
+  role: string;
   iat?: number;
   exp?: number;
-}
-
-export interface AuthenticatedRequest extends Request {
-  user?: TokenPayload;
 }
 
 export type Message = {

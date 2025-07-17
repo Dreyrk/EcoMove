@@ -28,12 +28,12 @@ class AuthService {
     const user = await userService.getUserByEmail(email);
     if (!user) throw new AppError("Invalid credentials", 400);
 
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = bcrypt.compare(password, user.password);
     if (!isValid) throw new AppError("Invalid credentials", 400);
 
     const JWT_SECRET = getJwtSecret();
 
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
     return token;
   }
 }

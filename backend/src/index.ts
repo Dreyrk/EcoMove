@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import activityRouter from "./routes/activity.routes";
 import authRouter from "./routes/auth.routes";
 import statsRouter from "./routes/stats.routes";
@@ -15,6 +16,7 @@ const port = process.env.PORT || 4000;
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use("/api/activities", activityRouter);
