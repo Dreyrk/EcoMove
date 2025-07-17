@@ -1,15 +1,9 @@
 import { Target, Calendar, Trophy, TrendingUp } from "lucide-react";
 import StatCard from "./stat-card";
+import { UserStats } from "@/types";
 
 interface StatsCardsProps {
-  stats: {
-    totalKm: number;
-    dailyAverage: number;
-    daysActive: number;
-    individualRank: number;
-    totalUsers: number;
-    streak: number;
-  };
+  stats: UserStats;
 }
 
 export default function StatsCards({ stats }: StatsCardsProps) {

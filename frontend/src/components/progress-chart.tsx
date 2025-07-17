@@ -15,7 +15,7 @@ interface ProgressChartProps {
 
 const chartConfig = {
   bike: {
-    label: "Velo",
+    label: "Vélo",
     color: "var(--chart-1)",
   },
   walk: {

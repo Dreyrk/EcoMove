@@ -1,7 +1,5 @@
 import { PrismaClient, User } from "@prisma/client";
 import db from "../lib/db";
-import { Message } from "../types";
-
 class UserService {
   private db: PrismaClient;
 

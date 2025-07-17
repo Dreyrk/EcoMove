@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import Layout from "@/components/layout/layout";
 import { useAuth } from "@/components/providers/auth-provider";
 import StatsCards from "@/components/dashboard/stats-cards";
@@ -7,41 +8,48 @@ import ActivityBreakdown from "@/components/dashboard/activity-breakdown";
 import ProgressSection from "@/components/dashboard/progress-section";
 import RankingsSection from "@/components/dashboard/rankings-section";
 import QuickActions from "@/components/dashboard/quick-actions";
+import { useEffect, useState } from "react";
+import { getDataSafe } from "@/utils/getData";
+import { DailyProgress, UserStats } from "@/types";
 
-// Mock data
-const userStats = {
-  totalKm: 156.8,
-  bikeKm: 98.2,
-  walkKm: 58.6,
-  dailyAverage: 5.2,
-  individualRank: 3,
-  teamRank: 1,
-  totalUsers: 247,
-  totalTeams: 12,
-  daysActive: 28,
-  streak: 7,
+const defaultUserStats: UserStats = {
+  totalKm: 0,
+  bikeKm: 0,
+  walkKm: 0,
+  dailyAverage: 0,
+  individualRank: 0,
+  teamRank: 0,
+  totalUsers: 0,
+  totalTeams: 0,
+  daysActive: 0,
+  streak: 0,
 };
-
-const progressData = [
-  { date: "2024-01-01", bike: 4.2, walk: 2.1 },
-  { date: "2024-01-02", bike: 6.8, walk: 1.8 },
-  { date: "2024-01-03", bike: 3.2, walk: 3.2 },
-  { date: "2024-01-04", bike: 8.1, walk: 0 },
-  { date: "2024-01-05", bike: 5.4, walk: 2.8 },
-  { date: "2024-01-06", bike: 0, walk: 4.5 },
-  { date: "2024-01-07", bike: 7.2, walk: 1.2 },
-  { date: "2024-01-08", bike: 4.8, walk: 3.1 },
-  { date: "2024-01-09", bike: 6.2, walk: 2.4 },
-  { date: "2024-01-10", bike: 5.1, walk: 1.9 },
-  { date: "2024-01-11", bike: 3.8, walk: 4.2 },
-  { date: "2024-01-12", bike: 7.5, walk: 0 },
-  { date: "2024-01-13", bike: 4.2, walk: 2.8 },
-  { date: "2024-01-14", bike: 6.1, walk: 1.5 },
-  { date: "2024-01-15", bike: 5.8, walk: 3.2 },
-];
 
 export default function Page() {
   const { user } = useAuth();
+  const [userStats, setUserStats] = useState<UserStats>(defaultUserStats);
+  const [progressData, setProgressData] = useState<DailyProgress[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) {
+        toast.error("Authentication required");
+        return;
+      }
+
+      const stats = await getDataSafe<UserStats>(`api/stats/users/id/${user.id}`);
+      const progress = await getDataSafe<DailyProgress[]>(`api/stats/users/id/${user.id}/progress`);
+
+      if (stats) setUserStats(stats.data);
+      if (progress) setProgressData(progress.data);
+    };
+
+    fetchData();
+  }, [user]);
+
+  if (!progressData.length) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Layout>
