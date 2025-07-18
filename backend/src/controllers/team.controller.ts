@@ -9,8 +9,8 @@ class TeamController {
   async getAllTeams(req: Request, res: Response, next: NextFunction) {
     try {
       const pagination = getPagination(req);
-      const teams = await teamService.getAllTeams(pagination);
-      res.status(200).json(successResponse(teams));
+      const { data, total } = await teamService.getAllTeams(pagination);
+      res.status(200).json(successResponse(data, { ...pagination, total }));
     } catch (error) {
       next(error);
     }

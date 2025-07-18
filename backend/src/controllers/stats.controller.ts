@@ -10,7 +10,7 @@ class StatsController {
       const stats = await statsService.getGeneralStats();
       res.status(200).json(successResponse(stats));
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -19,7 +19,7 @@ class StatsController {
       const stats = await statsService.getIndividualRankings();
       res.status(200).json(successResponse(stats));
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -28,7 +28,7 @@ class StatsController {
       const stats = await statsService.getTeamRankings();
       res.status(200).json(successResponse(stats));
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -41,7 +41,7 @@ class StatsController {
       const stats = await statsService.getUserStats(Number(id));
       res.status(200).json(successResponse(stats));
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -52,7 +52,7 @@ class StatsController {
       const stats = await statsService.getUserProgress(Number(id), pagination);
       res.status(200).json(successResponse(stats.data, stats.meta));
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 }

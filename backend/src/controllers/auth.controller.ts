@@ -18,7 +18,7 @@ class AuthController {
 
       res.status(200).json(successResponse(user));
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -33,18 +33,18 @@ class AuthController {
 
   async login(req: Request, res: Response) {
     try {
-      const token = await authService.login(req.body);
+      const { token, user } = await authService.login(req.body);
       res
         .cookie("token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+          sameSite: "lax",
         })
         .status(200)
-        .json({ status: "success" });
+        .json(successResponse({ user }));
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -53,10 +53,10 @@ class AuthController {
       .clearCookie("token", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
       })
       .status(200)
-      .json({ status: "success", message: "Logged out" });
+      .json(successResponse({ message: "Logged out" }));
   }
 }
 

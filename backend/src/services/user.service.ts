@@ -1,5 +1,8 @@
 import { PrismaClient, User, UserRoleType } from "@prisma/client";
+import z from "zod";
 import db from "../lib/db";
+import { UserSchema } from "../schemas/user.schema";
+import { formatZodErrors } from "../utils/formatZodErrors";
 
 type SelectedUser = {
   email: string;
@@ -16,7 +19,18 @@ class UserService {
   }
 
   async createUser(data: { name: string; email: string; password: string; teamId: number }): Promise<User> {
-    const createdUser = await this.db.user.create({ data });
+    // Valider les données avec Zod
+    const validatedUser = UserSchema.safeParse(data);
+
+    // Vérifier si la validation a réussi
+    if (!validatedUser.success) {
+      throw new Error(`Erreur de validation: ${formatZodErrors(validatedUser.error)}`);
+    }
+
+    // Extraire les données validées
+    const userData = validatedUser.data;
+
+    const createdUser = await this.db.user.create({ data: userData });
 
     return createdUser;
   }

@@ -1,76 +1,85 @@
 "use client";
 
-import { useState } from "react";
-import { z } from "zod";
+import { useEffect, useRef, useState } from "react";
+import { useActionState } from "react";
+import register, { RegisterFields } from "@/actions/auth/register";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { authFetcher } from "@/utils/authFetcher";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { toast } from "sonner";
+import { getDataSafe } from "@/utils/getData";
+import { FormState, TeamType } from "@/types";
+import PasswordInput from "../ui/password-input";
+import SubmitButton from "../ui/submit-button";
 
-const registerSchema = z.object({
-  name: z.string().min(2, "Nom requis"),
-  email: z.email("Email invalide"),
-  password: z.string().min(6, "6 caractères minimum"),
-});
+const initialState: FormState<RegisterFields> = {
+  success: false,
+  errors: {},
+};
 
 export default function RegisterForm({ onRegisterSuccess }: { onRegisterSuccess: () => void }) {
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
-  const [formErrors, setFormErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+  const [state, formAction, isPending] = useActionState(register, initialState);
+  const [teams, setTeams] = useState<TeamType[]>([]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const res = await getDataSafe<TeamType[]>("api/teams/");
+        setTeams(res.data);
+      } catch (e) {
+        toast.error("Erreur lors du chargement des équipes.", { description: (e as Error).message });
+      }
+    };
+    fetchTeams();
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormErrors({});
+  // Utilisation de la ref pour éviter le rerender
+  const calledRef = useRef(false);
 
-    const result = registerSchema.safeParse(formData);
-    if (!result.success) {
-      const fieldErrors = z.flattenError(result.error).fieldErrors;
-      setFormErrors({
-        name: fieldErrors.name?.[0],
-        email: fieldErrors.email?.[0],
-        password: fieldErrors.password?.[0],
-      });
-      return;
-    }
-
-    const { success, message } = await authFetcher("register", formData);
-
-    if (!success) {
-      toast.error(message);
-      return;
-    } else {
-      toast.success("Inscription réussie !");
+  useEffect(() => {
+    if (state.success && !calledRef.current) {
+      calledRef.current = true;
       onRegisterSuccess();
     }
-  };
+  }, [state.success, onRegisterSuccess]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form action={formAction} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="name">Nom</Label>
-        <Input id="name" name="name" value={formData.name} onChange={handleChange} />
-        {formErrors.name && <p className="text-sm text-red-600">{formErrors.name}</p>}
+        <Input name="name" id="name" />
+        {state.errors?.name && <p className="text-sm text-red-600">{state.errors.name.join(",")}</p>}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" value={formData.email} onChange={handleChange} />
-        {formErrors.email && <p className="text-sm text-red-600">{formErrors.email}</p>}
+        <Input name="email" id="email" type="email" />
+        {state.errors?.email && <p className="text-sm text-red-600">{state.errors.email.join(",")}</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Mot de passe</Label>
-        <Input id="password" name="password" type="password" value={formData.password} onChange={handleChange} />
-        {formErrors.password && <p className="text-sm text-red-600">{formErrors.password}</p>}
+        <PasswordInput name="password" id="password" />
+        {state.errors?.password && <p className="text-sm text-red-600">{state.errors.password.join(",")}</p>}
       </div>
 
-      <Button type="submit" className="w-full">
-        S’inscrire
-      </Button>
+      <div className="space-y-2">
+        <Label>Équipe</Label>
+        <Select name="teamId">
+          <SelectTrigger>
+            <SelectValue placeholder="Choisissez une équipe" />
+          </SelectTrigger>
+          <SelectContent>
+            {teams.map((team) => (
+              <SelectItem key={team.id} value={String(team.id)}>
+                {team.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {state.errors?.teamId && <p className="text-sm text-red-600">{state.errors.teamId.join(",")}</p>}
+      </div>
+
+      <SubmitButton isPending={isPending} text="S’inscrire" pendingText="Inscription..." />
     </form>
   );
 }

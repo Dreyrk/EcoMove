@@ -13,12 +13,12 @@ class AuthService {
     this.db = db;
   }
 
-  async register({ name, email, password, teamId }: { name: string; email: string; password: string; teamId: number }) {
+  async register({ name, email, password, teamId }: { name: string; email: string; password: string; teamId: string }) {
     const existing = await userService.getUserByEmail(email);
     if (existing) throw new AppError("Email already registered", 409);
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await userService.createUser({ name, email, password: hashedPassword, teamId });
+    const user = await userService.createUser({ name, email, password: hashedPassword, teamId: Number(teamId) });
 
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -26,15 +26,15 @@ class AuthService {
 
   async login({ email, password }: { email: string; password: string }) {
     const user = await userService.getUserByEmail(email);
-    if (!user) throw new AppError("Invalid credentials", 400);
+    if (!user) throw new AppError("Email invalide", 400);
 
-    const isValid = bcrypt.compare(password, user.password);
-    if (!isValid) throw new AppError("Invalid credentials", 400);
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) throw new AppError("Mot de passe invalide", 400);
 
     const JWT_SECRET = getJwtSecret();
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
-    return token;
+    return { token, user };
   }
 }
 

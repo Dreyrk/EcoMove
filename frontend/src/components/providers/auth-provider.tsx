@@ -1,52 +1,59 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import getBaseUrl from "@/utils/getBaseUrl";
+import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from "react";
 
-interface User {
-  id: string;
+export interface User {
+  id: number;
   name: string;
   email: string;
-  team: string;
+  role: string;
+  team: { id: number; name: string };
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
+  setUser: Dispatch<SetStateAction<User | null>>;
   isLoading: boolean;
+  isAuthenticated: boolean;
+  getProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
+};
+
+interface AuthProviderProps {
+  children: ReactNode;
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-  const pathname = usePathname();
+  const API_URL = getBaseUrl();
 
-  const fetchUser = async () => {
+  const getProfile = async () => {
     try {
-      const res = await fetch("/api/auth/profile", {
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
+        method: "GET",
         credentials: "include",
       });
 
-      if (res.ok) {
-        const data = await res.json();
+      if (response.ok) {
+        const data = await response.json();
         setUser(data.data);
       } else {
         setUser(null);
       }
     } catch (error) {
-      console.error("Error fetching user:", error);
+      console.error("Erreur lors de la vérification du statut d'authentification:", error);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -54,44 +61,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    fetchUser();
+    getProfile();
   }, []);
 
-  useEffect(() => {
-    if (!isLoading && !user && pathname !== "/login") {
-      router.push("/login");
-    }
-  }, [user, isLoading, pathname, router]);
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) return false;
-
-      await fetchUser();
-      router.push("/dashboard");
-      return true;
-    } catch (error) {
-      console.error("Login failed:", error);
-      return false;
-    }
+  const value = {
+    user,
+    setUser,
+    getProfile,
+    isLoading,
+    isAuthenticated: !!user,
   };
 
-  const logout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-      setUser(null);
-      router.push("/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
-  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>;
-}
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

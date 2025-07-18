@@ -1,7 +1,7 @@
+import express from "express";
 import teamController from "../controllers/team.controller";
-import router from "../router";
 
-const teamRouter = router;
+const teamRouter = express.Router();
 
 // GET Requests
 teamRouter.get("/", teamController.getAllTeams);

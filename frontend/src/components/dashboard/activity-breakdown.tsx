@@ -18,20 +18,20 @@ export default function ActivityBreakdown({ stats }: ActivityBreakdownProps) {
     <Card className="lg:col-span-1">
       <CardHeader>
         <CardTitle>Répartition de l&apos;activité</CardTitle>
-        <CardDescription>Vos transports eco-friendlys</CardDescription>
+        <CardDescription>Vos transports eco-friendly</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <ActivityItem
           label="Vélo"
           icon={<Bike className="h-4 w-4 text-blue-500" />}
           value={stats.bikeKm}
-          percent={bikePercent}
+          percent={bikePercent || 0}
         />
         <ActivityItem
           label="Marche"
           icon={<Footprints className="h-4 w-4 text-green-500" />}
           value={stats.walkKm}
-          percent={walkPercent}
+          percent={walkPercent || 0}
         />
       </CardContent>
     </Card>

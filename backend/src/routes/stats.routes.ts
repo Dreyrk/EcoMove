@@ -1,8 +1,8 @@
-import router from "../router";
+import express from "express";
 import statsController from "../controllers/stats.controller";
 import authMiddleware from "../middlewares/auth.middleware";
 
-const statsRouter = router;
+const statsRouter = express.Router();
 
 // GET Requests
 statsRouter.get("/general", statsController.getGeneralStats);

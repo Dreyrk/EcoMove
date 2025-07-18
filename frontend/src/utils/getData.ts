@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import { APIErrorResponse, APIResponse } from "@/types";
 import getBaseUrl from "./getBaseUrl";
 
@@ -9,7 +8,12 @@ function isErrorResponse<T>(res: APIResponse<T> | APIErrorResponse): res is APIE
 export async function getData<T>(url: string): Promise<APIResponse<T> | APIErrorResponse> {
   try {
     const baseUrl = getBaseUrl();
-    const res = await fetch(`${baseUrl}/${url}`);
+    const res = await fetch(`${baseUrl}/${url}`, {
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     const json = await res.json();
 
@@ -29,12 +33,11 @@ export async function getData<T>(url: string): Promise<APIResponse<T> | APIError
   }
 }
 
-export async function getDataSafe<T>(url: string): Promise<APIResponse<T> | null> {
+export async function getDataSafe<T>(url: string): Promise<APIResponse<T>> {
   const response = await getData<T>(url);
 
   if (isErrorResponse(response)) {
-    toast.error(response.message);
-    return null;
+    throw new Error(response.message);
   }
 
   return response;

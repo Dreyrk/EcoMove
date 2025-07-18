@@ -7,7 +7,7 @@ interface RankingsSectionProps {
     individualRank: number;
     teamRank: number;
   };
-  team?: string;
+  team?: { id: number; name: string };
 }
 
 export default function RankingsSection({ stats, team }: RankingsSectionProps) {
@@ -28,7 +28,7 @@ export default function RankingsSection({ stats, team }: RankingsSectionProps) {
         />
         <RankingItem
           title="Classement de l'équipe"
-          description={`Position de l'équipe ${team}`}
+          description={`Position de l'équipe ${team?.name}`}
           value={`#${stats.teamRank}`}
           variant="default"
         />

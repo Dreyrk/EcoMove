@@ -7,13 +7,14 @@ import { useAuth } from "@/components/providers/auth-provider";
 
 import MobileHeader from "./mobile-header";
 import Sidebar from "./sidebar";
+import logout from "@/actions/auth/logout";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

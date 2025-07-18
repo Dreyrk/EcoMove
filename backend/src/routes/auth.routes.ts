@@ -1,8 +1,8 @@
+import express from "express";
 import authController from "../controllers/auth.controller";
 import authMiddleware from "../middlewares/auth.middleware";
-import router from "../router";
 
-const authRouter = router;
+const authRouter = express.Router();
 
 // GET Requests
 authRouter.get("/profile", authMiddleware.verifyToken, authController.getProfile);

@@ -11,7 +11,7 @@ class TeamService {
     this.db = db;
   }
 
-  async getAllTeams(paginationMeta: PaginationParams): Promise<DataResponse<Team>> {
+  async getAllTeams(paginationMeta: PaginationParams): Promise<{ data: Team[]; total: number }> {
     try {
       const { skip, take, page, per_page } = paginationMeta;
 
@@ -19,20 +19,14 @@ class TeamService {
         this.db.team.findMany({
           skip,
           take,
-          orderBy: { id: "asc" }, // ou un autre critère de tri
+          orderBy: { id: "asc" },
         }),
         this.db.team.count(),
       ]);
 
       return {
         data: teams,
-        meta: {
-          total,
-          skip,
-          take,
-          page,
-          per_page,
-        },
+        total,
       };
     } catch (error) {
       throw new AppError("Failed to fetch teams", 500);

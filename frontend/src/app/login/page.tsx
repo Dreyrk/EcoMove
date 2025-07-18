@@ -6,9 +6,24 @@ import { Leaf } from "lucide-react";
 import LoginForm from "@/components/login/login-form";
 import RegisterForm from "@/components/login/register-form";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
+  const router = useRouter();
+
+  const onRegisterSuccess = () => {
+    toast.success("Inscription réussie !", { description: "Vous pouvez vous connecter" });
+    setMode("login");
+  };
+
+  const onLoginSuccess = () => {
+    toast.success("Connexion réussie !", { description: "Vous allez être redirigé vers votre dashboard" });
+
+    router.push("/dashboard");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-4">
       <Card className="w-full max-w-md">
@@ -32,10 +47,10 @@ export default function AuthPage() {
               <TabsTrigger value="register">Inscription</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
-              <LoginForm />
+              <LoginForm onLoginSuccess={onLoginSuccess} />
             </TabsContent>
             <TabsContent value="register">
-              <RegisterForm onRegisterSuccess={() => setMode("login")} />
+              <RegisterForm onRegisterSuccess={onRegisterSuccess} />
             </TabsContent>
           </Tabs>
         </CardContent>

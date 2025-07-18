@@ -21,20 +21,21 @@ class ActivityController {
         const errorMessages = e.errors.map((err: any) => err.message);
         next(new AppError(errorMessages.join(", "), 400));
       } else {
-        throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+        throw new AppError(`eur: ${(e as Error).message}`, 500);
       }
     }
   }
 
   async getAllActivities(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log(req.url);
       const pagination = getPagination(req);
 
       const { data, meta } = await activityService.getAllActivities(pagination);
 
       res.status(200).json(successResponse(data, meta));
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -56,7 +57,7 @@ class ActivityController {
 
       res.status(200).json(successResponse(activities));
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -66,7 +67,7 @@ class ActivityController {
       await activityService.deleteActivity(Number(id));
       res.status(204).send();
     } catch (e) {
-      throw new AppError(`Erreur serveur: ${(e as Error).message}`, 500);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 }

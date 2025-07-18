@@ -3,6 +3,7 @@ import { LayoutDashboard, Plus, BarChart3, Leaf } from "lucide-react";
 import NavLinkItem from "./nav-link-item";
 import UserProfileSection from "./user-profile-section";
 import ThemeToggle from "../themes/theme-toggle";
+import { User } from "../providers/auth-provider";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -18,7 +19,7 @@ export default function Sidebar({
   closeMobileMenu,
 }: {
   pathname: string;
-  user: { name?: string; team?: string } | null;
+  user: User | null;
   onLogout: () => void;
   mobileMenuOpen: boolean;
   closeMobileMenu: () => void;
