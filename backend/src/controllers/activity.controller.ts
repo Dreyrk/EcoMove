@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import activityService from "../services/activity.service";
 import { getPagination } from "../utils/pagination";
-import { errorResponse, successResponse } from "../utils/response";
+import { successResponse } from "../utils/response";
 import userService from "../services/user.service";
 import { ActivitySchema } from "../schemas/activity.schema";
 import { AppError } from "../middlewares/error.middleware";
@@ -21,20 +21,21 @@ class ActivityController {
         const errorMessages = e.errors.map((err: any) => err.message);
         next(new AppError(errorMessages.join(", "), 400));
       } else {
-        next(e);
+        throw new AppError(`eur: ${(e as Error).message}`, 500);
       }
     }
   }
 
   async getAllActivities(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log(req.url);
       const pagination = getPagination(req);
 
       const { data, meta } = await activityService.getAllActivities(pagination);
 
       res.status(200).json(successResponse(data, meta));
     } catch (e) {
-      next(e);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -47,7 +48,7 @@ class ActivityController {
       const user = userService.getUserById(id);
 
       if (!user) {
-        res.status(404).json(errorResponse("Utilisateur non trouvé"));
+        throw new AppError("Utilisateur non trouvé", 404);
       }
 
       const pagination = getPagination(req);
@@ -56,7 +57,7 @@ class ActivityController {
 
       res.status(200).json(successResponse(activities));
     } catch (e) {
-      next(e);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -66,7 +67,7 @@ class ActivityController {
       await activityService.deleteActivity(Number(id));
       res.status(204).send();
     } catch (e) {
-      next(e);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 }

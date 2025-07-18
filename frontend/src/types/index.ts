@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type APIMetaData = {
   page: number;
   per_page: number;
@@ -62,4 +63,13 @@ export type ChallengeStatsType = {
   challengeDuration: number;
   activeDays: number;
   co2Saved?: number;
+};
+
+export type TeamType = { id: number; name: string };
+
+export type FormState<T extends Record<string, any>> = {
+  success: boolean;
+  errors: {
+    [K in keyof T]?: string[];
+  };
 };

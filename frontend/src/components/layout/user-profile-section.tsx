@@ -1,13 +1,8 @@
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { User } from "../providers/auth-provider";
 
-export default function UserProfileSection({
-  user,
-  onLogout,
-}: {
-  user: { name?: string; team?: string } | null;
-  onLogout: () => void;
-}) {
+export default function UserProfileSection({ user, onLogout }: { user: User | null; onLogout: () => void }) {
   return (
     <div className="border-t pt-4">
       <div className="flex items-center gap-x-4 px-2 py-3 text-sm font-semibold">
@@ -16,7 +11,7 @@ export default function UserProfileSection({
         </div>
         <div className="flex-1">
           <div className="text-sm font-medium">{user?.name}</div>
-          <div className="text-xs text-muted-foreground">{user?.team}</div>
+          <div className="text-xs text-muted-foreground">{user?.team.name}</div>
         </div>
       </div>
       <Button variant="ghost" className="w-full justify-start" onClick={onLogout}>

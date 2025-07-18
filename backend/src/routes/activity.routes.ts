@@ -1,7 +1,7 @@
+import express from "express";
 import activityController from "../controllers/activity.controller";
-import router from "../router";
 
-const activityRouter = router;
+const activityRouter = express.Router();
 
 // GET Requests
 activityRouter.get("/", activityController.getAllActivities);

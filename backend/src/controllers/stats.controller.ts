@@ -2,42 +2,46 @@ import { NextFunction, Request, Response } from "express";
 import statsService from "../services/stats.service";
 import { getPagination } from "../utils/pagination";
 import { successResponse } from "../utils/response";
+import { AppError } from "../middlewares/error.middleware";
 
 class StatsController {
   async getGeneralStats(req: Request, res: Response, next: NextFunction) {
     try {
       const stats = await statsService.getGeneralStats();
-      res.json(successResponse(stats));
+      res.status(200).json(successResponse(stats));
     } catch (e) {
-      next(e);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
   async getIndividualRankings(req: Request, res: Response, next: NextFunction) {
     try {
       const stats = await statsService.getIndividualRankings();
-      res.json(successResponse(stats));
+      res.status(200).json(successResponse(stats));
     } catch (e) {
-      next(e);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
   async getTeamRankings(req: Request, res: Response, next: NextFunction) {
     try {
       const stats = await statsService.getTeamRankings();
-      res.json(successResponse(stats));
+      res.status(200).json(successResponse(stats));
     } catch (e) {
-      next(e);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
   async getUserStats(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (Number(id) !== req.user?.id) {
+        throw new AppError("Unauthorized", 403);
+      }
       const stats = await statsService.getUserStats(Number(id));
-      res.json(successResponse(stats));
+      res.status(200).json(successResponse(stats));
     } catch (e) {
-      next(e);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
@@ -46,9 +50,9 @@ class StatsController {
       const { id } = req.params;
       const pagination = getPagination(req);
       const stats = await statsService.getUserProgress(Number(id), pagination);
-      res.json(successResponse(stats.data, stats.meta));
+      res.status(200).json(successResponse(stats.data, stats.meta));
     } catch (e) {
-      next(e);
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 }
