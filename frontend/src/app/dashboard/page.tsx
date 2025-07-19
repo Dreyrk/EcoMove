@@ -38,11 +38,11 @@ export default function Page() {
         return;
       }
 
-      const stats = await getDataSafe<UserStats>(`api/stats/users/id/${user.id}`);
-      const progress = await getDataSafe<DailyProgress[]>(`api/stats/users/id/${user.id}/progress`);
+      const stats = await getDataSafe<UserStats>(`api/stats/users/${user.id}`);
+      const progress = await getDataSafe<DailyProgress[]>(`api/stats/users/${user.id}/progress`);
 
-      if (stats) setUserStats(stats.data);
-      if (progress) setProgressData(progress.data);
+      if (stats) setUserStats(stats.data || defaultUserStats);
+      if (progress) setProgressData(progress.data || []);
     };
 
     fetchData();

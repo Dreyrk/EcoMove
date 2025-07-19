@@ -1,8 +1,9 @@
+// Importation des dépendances nécessaires
 import { PrismaClient, Team } from "@prisma/client";
-import db from "../lib/db";
 import { AppError } from "../middlewares/error.middleware";
-import { DataResponse } from "../types";
+import db from "../lib/db";
 import { PaginationParams } from "../utils/pagination";
+import { DataResponse } from "../types";
 
 class TeamService {
   private db: PrismaClient;
@@ -11,78 +12,102 @@ class TeamService {
     this.db = db;
   }
 
-  async getAllTeams(paginationMeta: PaginationParams): Promise<{ data: Team[]; total: number }> {
+  // Récupère toutes les équipes avec pagination
+  async getAllTeams(pagination: PaginationParams): Promise<DataResponse<Team[]>> {
     try {
-      const { skip, take, page, per_page } = paginationMeta;
+      const { page, per_page } = pagination;
+      const skip = (page - 1) * per_page;
 
       const [teams, total] = await Promise.all([
         this.db.team.findMany({
           skip,
-          take,
-          orderBy: { id: "asc" },
+          take: per_page,
+          orderBy: { name: "asc" },
         }),
         this.db.team.count(),
       ]);
 
-      return {
-        data: teams,
-        total,
-      };
+      return { data: teams, meta: { ...pagination, total } };
     } catch (error) {
-      throw new AppError("Failed to fetch teams", 500);
+      throw new AppError("Erreur lors de la récupération des équipes", 500, "DATABASE_ERROR");
     }
   }
 
-  async getTeamById(id: number) {
+  // Récupère une équipe par son ID
+  async getTeamById(id: number): Promise<Team | null> {
     try {
       const team = await this.db.team.findUnique({
         where: { id },
       });
-
-      if (!team) {
-        throw new AppError("Team not found", 404);
-      }
-
       return team;
     } catch (error) {
-      throw new AppError("Failed to fetch team", 500);
+      throw new AppError("Erreur lors de la récupération de l'équipe", 500, "DATABASE_ERROR");
     }
   }
 
-  async createTeam(name: string, description?: string) {
+  // Crée une nouvelle équipe
+  async createTeam(name: string, description?: string): Promise<Team> {
     try {
-      return await this.db.team.create({
-        data: {
-          name,
-          description,
-        },
+      const existingTeam = await this.db.team.findFirst({ where: { name } });
+      if (existingTeam?.id) {
+        throw new AppError("Une équipe avec ce nom existe déjà", 400, "TEAM_NAME_EXISTS");
+      }
+
+      const team = await this.db.team.create({
+        data: { name, description },
       });
+      return team;
     } catch (error) {
-      throw new AppError("Failed to create team", 500);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError("Erreur lors de la création de l'équipe", 500, "DATABASE_ERROR");
     }
   }
 
-  async updateTeam(id: number, name?: string, description?: string) {
+  // Met à jour une équipe existante
+  async updateTeam(id: number, name: string, description?: string): Promise<Team | null> {
     try {
-      return await this.db.team.update({
+      const existingTeam = await this.db.team.findFirst({ where: { name } });
+      if (existingTeam?.id && existingTeam.id !== id) {
+        throw new AppError("Une autre équipe avec ce nom existe déjà", 400, "TEAM_NAME_EXISTS");
+      }
+
+      const team = await this.db.team.update({
         where: { id },
-        data: {
-          name,
-          description,
-        },
+        data: { name, description },
       });
+      return team;
     } catch (error) {
-      throw new AppError("Failed to update team", 500);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError("Erreur lors de la mise à jour de l'équipe", 500, "DATABASE_ERROR");
     }
   }
 
-  async deleteTeam(id: number) {
+  // Supprime une équipe par son ID
+  async deleteTeam(id: number): Promise<boolean> {
     try {
-      return await this.db.team.delete({
-        where: { id },
-      });
+      // Vérifier si l'équipe existe
+      const team = await this.db.team.findUnique({ where: { id } });
+      if (!team) {
+        return false;
+      }
+
+      // Vérifier s'il y a des utilisateurs associés
+      const userCount = await this.db.user.count({ where: { teamId: id } });
+      if (userCount > 0) {
+        throw new AppError("Impossible de supprimer une équipe avec des utilisateurs associés", 400, "TEAM_HAS_USERS");
+      }
+
+      await this.db.team.delete({ where: { id } });
+      return true;
     } catch (error) {
-      throw new AppError("Failed to delete team", 500);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError("Erreur lors de la suppression de l'équipe", 500, "DATABASE_ERROR");
     }
   }
 }

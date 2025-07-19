@@ -10,6 +10,7 @@ import TeamTable from "@/components/stats/team-table";
 import { IndividualRankingType, TeamRankingType, ChallengeStatsType } from "@/types";
 import { getDataSafe } from "@/utils/getData";
 import { isEmptyObject } from "@/utils/isEmptyObject";
+import LoadingPage from "@/components/loading-page";
 
 const defaultChallengeStats = {
   totalParticipants: 0,
@@ -24,6 +25,7 @@ const defaultChallengeStats = {
 
 export default function StatsPage() {
   const [isExporting, setIsExporting] = useState(false);
+  const [tabSelected, setTabSelected] = useState<"individual" | "team">("individual");
   const [individualRankings, setIndividualRankings] = useState<IndividualRankingType[]>([]);
   const [teamRankings, setTeamRankings] = useState<TeamRankingType[]>([]);
   const [challengeStats, setChallengeStats] = useState<ChallengeStatsType>(defaultChallengeStats);
@@ -34,16 +36,16 @@ export default function StatsPage() {
       const teamRankingsData = await getDataSafe<TeamRankingType[]>(`api/stats/teams/rankings`);
       const challengeStatsData = await getDataSafe<ChallengeStatsType>(`api/stats/general`);
 
-      if (individualRankingsData) setIndividualRankings(individualRankingsData.data);
-      if (teamRankingsData) setTeamRankings(teamRankingsData.data);
-      if (challengeStatsData) setChallengeStats(challengeStatsData.data);
+      if (individualRankingsData) setIndividualRankings(individualRankingsData.data || []);
+      if (teamRankingsData) setTeamRankings(teamRankingsData.data || []);
+      if (challengeStatsData) setChallengeStats(challengeStatsData.data || defaultChallengeStats);
     };
 
     fetchData();
   }, []);
 
   if (isEmptyObject(challengeStats) || !teamRankings.length || !individualRankings.length) {
-    return <div>Chargement...</div>;
+    return <LoadingPage />;
   }
 
   return (
@@ -54,12 +56,20 @@ export default function StatsPage() {
             <h1 className="text-3xl font-bold tracking-tight">Statistiques & Classements</h1>
             <p className="text-muted-foreground">Tableaux de classement et statistiques du challenge</p>
           </div>
-          <ExportButton data={individualRankings} isExporting={isExporting} setIsExporting={setIsExporting} />
+          <ExportButton
+            data={tabSelected === "individual" ? individualRankings : teamRankings}
+            isExporting={isExporting}
+            setIsExporting={setIsExporting}
+          />
         </div>
 
         <ChallengeOverview stats={challengeStats} />
 
-        <Tabs defaultValue="individual" className="space-y-4">
+        <Tabs
+          defaultValue={tabSelected}
+          value={tabSelected}
+          onValueChange={(value) => setTabSelected(value as "individual" | "team")}
+          className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="individual">Classement individuel</TabsTrigger>
             <TabsTrigger value="team">Classement par équipe</TabsTrigger>

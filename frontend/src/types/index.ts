@@ -6,16 +6,29 @@ export type APIMetaData = {
   take: number;
 };
 
-export type APIResponse<T> = {
+export interface APIResponse<T> {
   status: "success" | "error";
-  data: T;
-  meta?: APIMetaData;
-};
+  data: T | null;
+  meta?: {
+    total?: number;
+    page?: number;
+    per_page?: number;
+    totalPage?: number;
+    skip?: number;
+    take?: number;
+    message?: string;
+  };
+  message?: string;
+}
 
-export type APIErrorResponse = {
-  status: "success" | "error";
+// Interface pour les erreurs
+export interface APIErrorResponse {
+  status: "error";
   message: string;
-};
+  data?: {
+    code: string;
+  };
+}
 
 export type UserStats = {
   totalKm: number;
