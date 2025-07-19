@@ -1,53 +1,66 @@
+// Configuration du générateur de client Prisma
 generator client {
   provider = "prisma-client-js"
 }
 
+// Configuration de la source de données (base de données PostgreSQL)
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-
+// Modèle Utilisateur représentant un participant au challenge
 model User {
-  id            Int       @id @default(autoincrement())
-  name          String
-  email         String    @unique
-  password      String    // password hashé
-  teamId        Int
-  role          UserRoleType @default(USER)
-  createdAt     DateTime  @default(now())
+  id         Int          @id @default(autoincrement()) // Identifiant unique auto-incrémenté
+  name       String       // Nom complet de l'utilisateur
+  email      String       @unique // Adresse email unique pour l'identification
+  password   String       // Mot de passe hashé (sécurisé via bcrypt ou équivalent)
+  teamId     Int          // Clé étrangère vers l'équipe de l'utilisateur
+  role       UserRoleType @default(USER) // Rôle de l'utilisateur (USER ou ADMIN)
+  createdAt  DateTime     @default(now()) // Date de création du compte
 
-  team          Team      @relation(fields: [teamId], references: [id])
-  activities    Activity[]
+  team       Team         @relation(fields: [teamId], references: [id]) // Relation avec l'équipe
+  activities Activity[]   // Liste des activités associées à l'utilisateur
+
+  @@index([email]) // Index pour optimiser les recherches par email
+  @@index([teamId]) // Index pour optimiser les jointures avec Team
 }
 
+// Modèle Équipe représentant un groupe de participants
 model Team {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  users       User[]
+  id          Int      @id @default(autoincrement()) // Identifiant unique auto-incrémenté
+  name        String   @unique // Nom unique de l'équipe
+  description String?  // Description optionnelle de l'équipe
+  createdAt   DateTime @default(now()) // Date de création de l'équipe
+
+  users       User[]   // Liste des utilisateurs appartenant à l'équipe
 }
 
+// Modèle Activité représentant une activité physique (vélo ou marche)
 model Activity {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  date        DateTime
-  type        ActivityType
-  distanceKm  Float     // Calculée si steps
-  steps       Int?      // Optionnel validation faite via l'application
-  createdAt   DateTime  @default(now())
+  id         Int          @id @default(autoincrement()) // Identifiant unique auto-incrémenté
+  userId     Int          // Clé étrangère vers l'utilisateur
+  date       DateTime     // Date de l'activité (jour précis)
+  type       ActivityType // Type d'activité (VELO ou MARCHE)
+  distanceKm Float        // Distance en kilomètres (calculée automatiquement pour MARCHE)
+  steps      Int?         // Nombre de pas (optionnel, utilisé pour MARCHE)
+  createdAt  DateTime     @default(now()) // Date de création de l'activité
+  updatedAt  DateTime     @updatedAt // Date de dernière mise à jour
 
-  user        User      @relation(fields: [userId], references: [id])
+  user       User         @relation(fields: [userId], references: [id]) // Relation avec l'utilisateur
 
-  @@unique([userId, date]) // Une activité par jour par utilisateur
+  @@unique([userId, date]) // Contrainte : une seule activité par utilisateur par jour
+  @@index([userId, date]) // Index pour optimiser les requêtes par utilisateur et date
 }
 
+// Énumération des types d'activités supportés
 enum ActivityType {
-  VELO
-  MARCHE
+  VELO    // Activité de vélo
+  MARCHE  // Activité de marche/course
 }
 
+// Énumération des rôles des utilisateurs
 enum UserRoleType {
-  USER
-  ADMIN
+  USER    // Utilisateur standard participant au challenge
+  ADMIN   // Administrateur avec des droits étendus
 }

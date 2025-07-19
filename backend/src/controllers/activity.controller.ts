@@ -1,73 +1,103 @@
+// Importation des dépendances nécessaires
 import { Request, Response } from "express";
-import { flattenError } from "zod";
 import activityService from "../services/activity.service";
 import { getPagination } from "../utils/pagination";
 import { successResponse } from "../utils/response";
 import userService from "../services/user.service";
 import { ActivitySchema } from "../schemas/activity.schema";
 import { AppError } from "../middlewares/error.middleware";
-
+import { formatZodErrors } from "../utils/formatZodErrors";
 class ActivityController {
+  // Crée une nouvelle activité avec validation
   async createActivity(req: Request, res: Response) {
     try {
-      const validatedData = ActivitySchema.safeParse(req.body);
+      // Vérifier l'utilisateur authentifié
+      if (!req.user) {
+        throw new AppError("Utilisateur non connecté", 401, "UNAUTHORIZED");
+      }
 
+      // Valider les données d'entrée
+      const validatedData = ActivitySchema.safeParse(req.body);
       if (!validatedData.success) {
-        const errorMessages = Object.values(flattenError(validatedData.error).fieldErrors).join(", ");
-        throw new AppError(errorMessages, 400);
+        throw new AppError(formatZodErrors(validatedData.error).join(", "), 400, "VALIDATION_ERROR");
       }
 
       const { userId, date, type, steps, distanceKm } = validatedData.data;
 
-      const activity = await activityService.createActivity(userId, date, type, distanceKm, steps);
+      // Vérifier que l'utilisateur crée une activité pour lui-même (ou est admin)
+      if (req.user.id !== userId && req.user.role !== "ADMIN") {
+        throw new AppError("Accès non autorisé", 403, "UNAUTHORIZED");
+      }
 
+      const activity = await activityService.createActivity(userId, date, type, distanceKm, steps);
       res.status(201).json(successResponse(activity));
-    } catch (e: any) {
-      throw new AppError(`${(e as Error).message}`, 500);
+    } catch (error) {
+      throw new AppError((error as Error).message, 500);
     }
   }
 
+  // Récupère toutes les activités avec pagination
   async getAllActivities(req: Request, res: Response) {
     try {
       const pagination = getPagination(req);
-
       const { data, meta } = await activityService.getAllActivities(pagination);
-
       res.status(200).json(successResponse(data, meta));
-    } catch (e) {
-      throw new AppError(`${(e as Error).message}`, 500);
+    } catch (error) {
+      throw new AppError((error as Error).message, 500);
     }
   }
 
+  // Récupère les activités d'un utilisateur avec pagination
   async getActivitiesByUserId(req: Request, res: Response) {
     try {
-      const { userId } = req.params;
+      // Vérifier l'utilisateur authentifié
+      if (!req.user) {
+        throw new AppError("Utilisateur non connecté", 401, "UNAUTHORIZED");
+      }
 
-      const id = Number(userId);
+      const userId = Number(req.params.userId);
 
-      const user = userService.getUserById(id);
+      // Vérifier que l'utilisateur accède à ses propres activités (ou est admin)
+      if (req.user.id !== userId && req.user.role !== "ADMIN") {
+        throw new AppError("Accès non autorisé", 403, "UNAUTHORIZED");
+      }
 
+      const user = await userService.getUserById(userId);
       if (!user) {
-        throw new AppError("Utilisateur non trouvé", 404);
+        throw new AppError("Utilisateur non trouvé", 404, "USER_NOT_FOUND");
       }
 
       const pagination = getPagination(req);
-
-      const activities = await activityService.getActivitiesByUserId(id, pagination);
-
-      res.status(200).json(successResponse(activities.data, activities.meta));
-    } catch (e) {
-      throw new AppError(`${(e as Error).message}`, 500);
+      const { data, meta } = await activityService.getActivitiesByUserId(userId, pagination);
+      res.status(200).json(successResponse(data, meta));
+    } catch (error) {
+      throw new AppError((error as Error).message, 500);
     }
   }
 
+  // Supprime une activité par ID
   async deleteActivity(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      await activityService.deleteActivity(Number(id));
-      res.status(204).send();
-    } catch (e) {
-      throw new AppError(`${(e as Error).message}`, 500);
+      // Vérifier l'utilisateur authentifié
+      if (!req.user) {
+        throw new AppError("Utilisateur non connecté", 401, "UNAUTHORIZED");
+      }
+
+      const id = Number(req.params.id);
+
+      // Vérifier que l'utilisateur est autorisé à supprimer l'activité
+      const activity = await activityService.getActivityById(id);
+      if (!activity) {
+        throw new AppError("Activité non trouvée", 404, "ACTIVITY_NOT_FOUND");
+      }
+      if (req.user.id !== activity.userId && req.user.role !== "ADMIN") {
+        throw new AppError("Accès non autorisé", 403, "UNAUTHORIZED");
+      }
+
+      await activityService.deleteActivity(id);
+      res.status(200).json(successResponse(null, { message: "Activité supprimée avec succès" }));
+    } catch (error) {
+      throw new AppError((error as Error).message, 500);
     }
   }
 }

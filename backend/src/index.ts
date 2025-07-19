@@ -13,18 +13,31 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
 
-const cors_origins = process.env.CORS_URLS?.split(",") || ["http://localhost:3000"];
+// Configuration des origines CORS à partir de la variable d'environnement
+const corsOrigins = process.env.CORS_URLS?.split(",").filter((origin) => origin.trim() !== "") || [
+  "http://localhost:3000",
+];
+
 // Middlewares
-app.use(cors({ origin: cors_origins, credentials: true }));
+app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Routes
-app.use("/api/teams", teamRouter);
-app.use("/api/stats", statsRouter);
-app.use("/api/activities", activityRouter);
-app.use("/api/auth", authRouter);
+// Route racine pour vérifier l'état de l'API
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "API du Challenge Mobilité est en ligne",
+  });
+});
 
+// Routes principales de l'API
+app.use("/api/teams", teamRouter); // Gestion des équipes
+app.use("/api/stats", statsRouter); // Statistiques et classements
+app.use("/api/activities", activityRouter); // Gestion des activités
+app.use("/api/auth", authRouter); // Authentification des utilisateurs
+
+// Middleware de gestion des erreurs
 app.use(errorHandler);
 
 // Start server

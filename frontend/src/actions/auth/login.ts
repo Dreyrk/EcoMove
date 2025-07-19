@@ -7,7 +7,7 @@ import { formatZodErrorToFormState } from "@/utils/formatZodErrorToFormState";
 import getBaseUrl from "@/utils/getBaseUrl";
 
 const loginSchema = z.object({
-  email: z.string().email("Email invalide"),
+  email: z.email("Email invalide"),
   password: z.string().min(1, "Mot de passe requis"),
 });
 
@@ -26,6 +26,7 @@ export default async function login(
   }
 
   try {
+    // authFetcher ne peut pas être utilisé ici car on doit gérer manuellement les cookies de la réponse
     const baseUrl = getBaseUrl();
     const response = await fetch(`${baseUrl}/api/auth/login`, {
       method: "POST",

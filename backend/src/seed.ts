@@ -10,50 +10,155 @@ async function main() {
   await prisma.activity.deleteMany();
   await prisma.user.deleteMany();
   await prisma.team.deleteMany();
+  console.log("🧹 Base de données nettoyée");
 
-  // Créer les équipes
+  // Créer les équipes (départements)
   const teams = await prisma.team.createMany({
     data: [
       {
-        name: "Les Cyclistes Fous",
-        description: "Équipe passionnée de vélo et de défis sportifs",
+        name: "Marketing",
+        description: "Promouvoir la mobilité durable dans le département Marketing",
       },
       {
-        name: "Marcheurs Urbains",
-        description: "Explorateurs de la ville à pied",
+        name: "Recherche & Développement",
+        description: "Innover pour un avenir vert dans la R&D",
       },
       {
-        name: "Green Warriors",
-        description: "Équipe engagée pour l'environnement",
+        name: "Opérations",
+        description: "Optimiser les déplacements professionnels",
       },
       {
-        name: "Fitness Masters",
-        description: "Les pros de l'activité physique",
+        name: "Ressources Humaines",
+        description: "Encourager la santé et la durabilité des employés",
       },
     ],
   });
-
-  // Récupérer les équipes créées
   const createdTeams = await prisma.team.findMany();
-  console.log(`✅ ${createdTeams.length} équipes créées`);
+  console.log(`✅ ${createdTeams.length} départements créés`);
 
-  // Créer les utilisateurs
-  const hashedPassword = await bcrypt.hash("password123", 10);
-
+  // Créer les utilisateurs (employés)
+  const hashedPassword = await bcrypt.hash("password123", 10); // Mot de passe temporaire
   const users = [
-    { name: "Alice Martin", email: "alice@example.com", teamId: createdTeams[0].id, role: UserRoleType.ADMIN },
-    { name: "Bob Dupont", email: "bob@example.com", teamId: createdTeams[0].id, role: UserRoleType.USER },
-    { name: "Claire Rousseau", email: "claire@example.com", teamId: createdTeams[0].id, role: UserRoleType.USER },
-    { name: "David Moreau", email: "david@example.com", teamId: createdTeams[1].id, role: UserRoleType.USER },
-    { name: "Emma Leroy", email: "emma@example.com", teamId: createdTeams[1].id, role: UserRoleType.USER },
-    { name: "Florian Bernard", email: "florian@example.com", teamId: createdTeams[1].id, role: UserRoleType.USER },
-    { name: "Gabrielle Petit", email: "gabrielle@example.com", teamId: createdTeams[1].id, role: UserRoleType.USER },
-    { name: "Hugo Durand", email: "hugo@example.com", teamId: createdTeams[2].id, role: UserRoleType.USER },
-    { name: "Isabelle Garnier", email: "isabelle@example.com", teamId: createdTeams[2].id, role: UserRoleType.USER },
-    { name: "Julien Faure", email: "julien@example.com", teamId: createdTeams[2].id, role: UserRoleType.USER },
-    { name: "Kevin Lemoine", email: "kevin@example.com", teamId: createdTeams[3].id, role: UserRoleType.USER },
-    { name: "Laura Giraud", email: "laura@example.com", teamId: createdTeams[3].id, role: UserRoleType.USER },
-    { name: "Marc Blanchard", email: "marc@example.com", teamId: createdTeams[3].id, role: UserRoleType.USER },
+    {
+      name: "Marie Dubois",
+      email: "marie.dubois@challenge-mobilite.com",
+      teamId: createdTeams[0].id,
+      role: UserRoleType.ADMIN,
+    },
+    {
+      name: "Jean Martin",
+      email: "jean.martin@challenge-mobilite.com",
+      teamId: createdTeams[0].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Sophie Laurent",
+      email: "sophie.laurent@challenge-mobilite.com",
+      teamId: createdTeams[0].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Pierre Lefèvre",
+      email: "pierre.lefevre@challenge-mobilite.com",
+      teamId: createdTeams[0].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Claire Robert",
+      email: "claire.robert@challenge-mobilite.com",
+      teamId: createdTeams[0].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Luc Michel",
+      email: "luc.michel@challenge-mobilite.com",
+      teamId: createdTeams[1].id,
+      role: UserRoleType.ADMIN,
+    },
+    {
+      name: "Emma Girard",
+      email: "emma.girard@challenge-mobilite.com",
+      teamId: createdTeams[1].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Thomas Simon",
+      email: "thomas.simon@challenge-mobilite.com",
+      teamId: createdTeams[1].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Julie Bernard",
+      email: "julie.bernard@challenge-mobilite.com",
+      teamId: createdTeams[1].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Antoine Renaud",
+      email: "antoine.renaud@challenge-mobilite.com",
+      teamId: createdTeams[1].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Léa Dubois",
+      email: "lea.dubois@challenge-mobilite.com",
+      teamId: createdTeams[2].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Hugo Fournier",
+      email: "hugo.fournier@challenge-mobilite.com",
+      teamId: createdTeams[2].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Chloé Lemaire",
+      email: "chloe.lemaire@challenge-mobilite.com",
+      teamId: createdTeams[2].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Maxime Petit",
+      email: "maxime.petit@challenge-mobilite.com",
+      teamId: createdTeams[2].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Camille Garnier",
+      email: "camille.garnier@challenge-mobilite.com",
+      teamId: createdTeams[2].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Nicolas Durand",
+      email: "nicolas.durand@challenge-mobilite.com",
+      teamId: createdTeams[3].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Manon Faure",
+      email: "manon.faure@challenge-mobilite.com",
+      teamId: createdTeams[3].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Paul Lemoine",
+      email: "paul.lemoine@challenge-mobilite.com",
+      teamId: createdTeams[3].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Laura Giraud",
+      email: "laura.giraud@challenge-mobilite.com",
+      teamId: createdTeams[3].id,
+      role: UserRoleType.USER,
+    },
+    {
+      name: "Marc Blanchard",
+      email: "marc.blanchard@challenge-mobilite.com",
+      teamId: createdTeams[3].id,
+      role: UserRoleType.USER,
+    },
   ];
 
   const createdUsers = [];
@@ -66,56 +171,45 @@ async function main() {
     });
     createdUsers.push(user);
   }
+  console.log(`✅ ${createdUsers.length} employés créés`);
 
-  console.log(`✅ ${createdUsers.length} utilisateurs créés`);
-
-  // Créer les activités sur plusieurs jours
+  // Créer les activités pour aujourd'hui (19 juillet 2025)
+  const today = new Date(2025, 6, 19); // 19 juillet 2025
   const activities = [];
-  const startDate = new Date("2024-01-01");
   const activityTypes = [ActivityType.VELO, ActivityType.MARCHE];
 
-  // Générer 45 activités sur 30 jours
-  for (let i = 0; i < 45; i++) {
-    const randomUser = createdUsers[Math.floor(Math.random() * createdUsers.length)];
+  for (const user of createdUsers) {
     const randomType = activityTypes[Math.floor(Math.random() * activityTypes.length)];
-
-    // Date aléatoire dans les 30 derniers jours
-    const randomDate = new Date(startDate);
-    randomDate.setDate(startDate.getDate() + Math.floor(Math.random() * 30));
-
-    // Distance aléatoire selon le type d'activité
-    let distance: number;
+    let distanceKm: number;
     let steps: number | null = null;
 
     if (randomType === ActivityType.VELO) {
-      distance = Math.round((Math.random() * 30 + 5) * 10) / 10; // 5-35 km
+      distanceKm = Math.round((Math.random() * 18 + 2) * 10) / 10; // 2-20 km (trajet domicile-travail)
     } else {
-      distance = Math.round((Math.random() * 10 + 2) * 10) / 10; // 2-12 km
-      steps = Math.floor(distance * 1300 + Math.random() * 500); // ~1300 steps/km + variation
+      steps = Math.floor(Math.random() * 9000 + 1000); // 1000-10000 pas
+      distanceKm = parseFloat((steps / 1500).toFixed(1)); // 1500 pas = 1 km
     }
 
     try {
       const activity = await prisma.activity.create({
         data: {
-          userId: randomUser.id,
-          date: randomDate,
+          userId: user.id,
+          date: today,
           type: randomType,
-          distanceKm: distance,
-          steps: steps,
+          distanceKm,
+          steps,
         },
       });
       activities.push(activity);
     } catch (error: unknown) {
-      // Ignore les erreurs de contrainte unique (même utilisateur, même date)
       if (error instanceof Error && "code" in error && error.code === "P2002") {
-        // Ignore silencieusement
+        console.log(`⚠️ Activité déjà existante pour l'employé ${user.name} le ${today.toISOString()}`);
       } else {
         console.error("Erreur lors de la création de l'activité:", error);
       }
     }
   }
-
-  console.log(`✅ ${activities.length} activités créées`);
+  console.log(`✅ ${activities.length} activités créées pour le 19/07/2025`);
 
   // Afficher un résumé
   const summary = await prisma.team.findMany({
@@ -130,10 +224,22 @@ async function main() {
 
   console.log("\n📊 Résumé du seed:");
   summary.forEach((team) => {
-    console.log(`\n🏆 Équipe: ${team.name}`);
-    console.log(`   Membres: ${team.users.length}`);
+    console.log(`\n🏆 Département: ${team.name}`);
+    console.log(`   Employés: ${team.users.length}`);
     const totalActivities = team.users.reduce((sum, user) => sum + user.activities.length, 0);
-    console.log(`   Activités: ${totalActivities}`);
+    const totalDistance = team.users
+      .reduce((sum, user) => sum + user.activities.reduce((sumAct, act) => sumAct + act.distanceKm, 0), 0)
+      .toFixed(1);
+    const veloCount = team.users.reduce(
+      (sum, user) => sum + user.activities.filter((act) => act.type === ActivityType.VELO).length,
+      0
+    );
+    const marcheCount = team.users.reduce(
+      (sum, user) => sum + user.activities.filter((act) => act.type === ActivityType.MARCHE).length,
+      0
+    );
+    console.log(`   Activités: ${totalActivities} (Vélo: ${veloCount}, Marche: ${marcheCount})`);
+    console.log(`   Distance totale: ${totalDistance} km`);
   });
 
   console.log("\n🎉 Seed terminé avec succès !");

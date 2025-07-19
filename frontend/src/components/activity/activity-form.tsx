@@ -11,9 +11,12 @@ import submitActivity, { ActivityFields } from "@/actions/activity/submitActivit
 import SubmitButton from "../ui/submit-button";
 import LoadingPage from "../loading-page";
 import formatDateFr from "@/utils/formatDateFr";
+import DailyActivitySubmitted from "./daily-activity-submitted";
+import { toast } from "sonner";
 
 interface ActivityFormProps {
   existingActivities: ActivityDataType[];
+  hasActivityForDate: boolean;
 }
 
 const initialState: FormState<ActivityFields> = {
@@ -21,7 +24,7 @@ const initialState: FormState<ActivityFields> = {
   errors: {},
 };
 
-export default function ActivityForm({ existingActivities }: ActivityFormProps) {
+export default function ActivityForm({ existingActivities, hasActivityForDate }: ActivityFormProps) {
   const { user } = useAuth();
   const [state, formAction, isPending] = useActionState(submitActivity, initialState);
   const [activityType, setActivityType] = useState<"VELO" | "MARCHE">("MARCHE");
@@ -36,6 +39,9 @@ export default function ActivityForm({ existingActivities }: ActivityFormProps) 
       setDistance(0);
       setSteps(0);
       setDate(formatDateFr(new Date()));
+      toast.success("Activité journalière enregistrée !", {
+        description: "Revenez demain pour enregistrer la suivante.",
+      });
     }
   }, [state.success]);
 
@@ -43,10 +49,9 @@ export default function ActivityForm({ existingActivities }: ActivityFormProps) 
     return <LoadingPage />;
   }
 
-  const today = formatDateFr(new Date());
-  const hasActivityForDate = existingActivities.some((activity) => activity.date === date);
-  const isDateInPast = date < today;
-  const canEdit = !isDateInPast || date === today;
+  if (hasActivityForDate) {
+    return <DailyActivitySubmitted />;
+  }
 
   return (
     <Card>
@@ -61,7 +66,7 @@ export default function ActivityForm({ existingActivities }: ActivityFormProps) 
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-6">
-          {/* Champ caché pour l'userId */}
+          {/* Champ caché pour récuperer userId */}
           <input type="hidden" name="userId" value={user?.id} />
 
           <DateInput date={date} setDate={setDate} hasActivityForDate={hasActivityForDate} error={state.errors.date} />
@@ -87,16 +92,6 @@ export default function ActivityForm({ existingActivities }: ActivityFormProps) 
                 <AlertDescription className="text-green-800">Enregistrement réussi !</AlertDescription>
               </Alert>
             )}
-
-            {/* Alerte pour les dates passées */}
-            {!canEdit && (
-              <Alert variant="destructive">
-                <AlertDescription>
-                  Les activités des dates passées ne peuvent être ni ajoutées ni modifiées.
-                </AlertDescription>
-              </Alert>
-            )}
-
             <SubmitButton text="Enregistrer une activité" pendingText="Enregistrement..." isPending={isPending} />
           </div>
         </form>

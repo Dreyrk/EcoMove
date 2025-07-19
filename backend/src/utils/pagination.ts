@@ -8,7 +8,7 @@ export interface PaginationParams {
 }
 
 // Récupère les paramètres de pagination à partir de la requête.
-export const getPagination = (req: Request, defaultPerPage = 20): PaginationParams => {
+export const getPagination = (req: Request, defaultPerPage = 30): PaginationParams => {
   const page = Math.max(1, parseInt(req.query.page as string) || 1);
   const per_page = Math.max(1, parseInt(req.query.per_page as string) || defaultPerPage);
 

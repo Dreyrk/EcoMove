@@ -4,16 +4,14 @@ import authMiddleware from "../middlewares/auth.middleware";
 
 const activityRouter = express.Router();
 
-// GET Requests
-activityRouter.get("/", activityController.getAllActivities);
-activityRouter.get("/user/:userId", authMiddleware.verifyToken, activityController.getActivitiesByUserId);
+// Routes GET
+activityRouter.get("/", activityController.getAllActivities); // GET /api/activities - Récupère toutes les activités (public)
+activityRouter.get("/user/:userId", authMiddleware.verifyToken, activityController.getActivitiesByUserId); // GET /api/activities/user/:userId - Récupère les activités d'un utilisateur (authentifié)
 
-// POST Requests
-activityRouter.post("/new", activityController.createActivity);
+// Routes POST
+activityRouter.post("/new", authMiddleware.verifyToken, activityController.createActivity); // POST /api/activities/new - Crée une nouvelle activité (authentifié)
 
-// PUT Requests
-
-// DELETE Requests
-activityRouter.delete("/:id", authMiddleware.verifyToken, activityController.deleteActivity);
+// Routes DELETE
+activityRouter.delete("/:id", authMiddleware.verifyToken, activityController.deleteActivity); // DELETE /api/activities/:id - Supprime une activité (authentifié)
 
 export default activityRouter;

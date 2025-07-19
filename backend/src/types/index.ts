@@ -16,7 +16,7 @@ export interface MetaData extends PaginationParams {
   total: number;
 }
 
-export type DataResponse<T> = {
-  data: T[];
-  meta: MetaData;
-};
+export interface DataResponse<T> {
+  data: T;
+  meta?: MetaData;
+}
