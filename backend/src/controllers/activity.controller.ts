@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
+import { flattenError } from "zod";
 import activityService from "../services/activity.service";
 import { getPagination } from "../utils/pagination";
 import { successResponse } from "../utils/response";
@@ -7,28 +8,27 @@ import { ActivitySchema } from "../schemas/activity.schema";
 import { AppError } from "../middlewares/error.middleware";
 
 class ActivityController {
-  async createActivity(req: Request, res: Response, next: NextFunction) {
+  async createActivity(req: Request, res: Response) {
     try {
-      const validatedData = ActivitySchema.parse(req.body);
+      const validatedData = ActivitySchema.safeParse(req.body);
 
-      const { userId, date, type, steps, distanceKm } = validatedData;
+      if (!validatedData.success) {
+        const errorMessages = Object.values(flattenError(validatedData.error).fieldErrors).join(", ");
+        throw new AppError(errorMessages, 400);
+      }
 
-      const activity = await activityService.createActivity(userId, new Date(date), type, steps, distanceKm);
+      const { userId, date, type, steps, distanceKm } = validatedData.data;
+
+      const activity = await activityService.createActivity(userId, date, type, distanceKm, steps);
 
       res.status(201).json(successResponse(activity));
     } catch (e: any) {
-      if (e.name === "ZodError") {
-        const errorMessages = e.errors.map((err: any) => err.message);
-        next(new AppError(errorMessages.join(", "), 400));
-      } else {
-        throw new AppError(`eur: ${(e as Error).message}`, 500);
-      }
+      throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
-  async getAllActivities(req: Request, res: Response, next: NextFunction) {
+  async getAllActivities(req: Request, res: Response) {
     try {
-      console.log(req.url);
       const pagination = getPagination(req);
 
       const { data, meta } = await activityService.getAllActivities(pagination);
@@ -39,7 +39,7 @@ class ActivityController {
     }
   }
 
-  async getActivitiesByUserId(req: Request, res: Response, next: NextFunction) {
+  async getActivitiesByUserId(req: Request, res: Response) {
     try {
       const { userId } = req.params;
 
@@ -55,13 +55,13 @@ class ActivityController {
 
       const activities = await activityService.getActivitiesByUserId(id, pagination);
 
-      res.status(200).json(successResponse(activities));
+      res.status(200).json(successResponse(activities.data, activities.meta));
     } catch (e) {
       throw new AppError(`${(e as Error).message}`, 500);
     }
   }
 
-  async deleteActivity(req: Request, res: Response, next: NextFunction) {
+  async deleteActivity(req: Request, res: Response) {
     try {
       const { id } = req.params;
       await activityService.deleteActivity(Number(id));

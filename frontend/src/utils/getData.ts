@@ -5,10 +5,10 @@ function isErrorResponse<T>(res: APIResponse<T> | APIErrorResponse): res is APIE
   return res.status === "error";
 }
 
-export async function getData<T>(url: string): Promise<APIResponse<T> | APIErrorResponse> {
+export async function getData<T>(url: string, ...params: unknown[]): Promise<APIResponse<T> | APIErrorResponse> {
   try {
     const baseUrl = getBaseUrl();
-    const res = await fetch(`${baseUrl}/${url}`, {
+    const res = await fetch(`${baseUrl}/${url}/${params.length ? params.join("/") : ""}`, {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -33,8 +33,8 @@ export async function getData<T>(url: string): Promise<APIResponse<T> | APIError
   }
 }
 
-export async function getDataSafe<T>(url: string): Promise<APIResponse<T>> {
-  const response = await getData<T>(url);
+export async function getDataSafe<T>(url: string, ...params: unknown[]): Promise<APIResponse<T>> {
+  const response = await getData<T>(url, ...params);
 
   if (isErrorResponse(response)) {
     throw new Error(response.message);

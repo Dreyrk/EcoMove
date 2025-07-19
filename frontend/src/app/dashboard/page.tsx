@@ -11,6 +11,7 @@ import QuickActions from "@/components/dashboard/quick-actions";
 import { useEffect, useState } from "react";
 import { getDataSafe } from "@/utils/getData";
 import { DailyProgress, UserStats } from "@/types";
+import LoadingPage from "@/components/loading-page";
 
 const defaultUserStats: UserStats = {
   totalKm: 0,
@@ -48,7 +49,7 @@ export default function Page() {
   }, [user]);
 
   if (!progressData.length) {
-    return <div>Loading...</div>;
+    return <LoadingPage />;
   }
 
   return (
