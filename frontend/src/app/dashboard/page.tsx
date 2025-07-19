@@ -13,6 +13,7 @@ import { getDataSafe } from "@/utils/getData";
 import { DailyProgress, UserStats } from "@/types";
 import LoadingPage from "@/components/loading-page";
 
+// Valeurs par défaut utilisées avant le chargement des vraies stats
 const defaultUserStats: UserStats = {
   totalKm: 0,
   bikeKm: 0,
@@ -34,10 +35,11 @@ export default function Page() {
   useEffect(() => {
     const fetchData = async () => {
       if (!user) {
-        toast.error("Authentication required");
+        toast.error("Authentification requise");
         return;
       }
 
+      // Récupération des statistiques générales et des données de progression
       const stats = await getDataSafe<UserStats>(`api/stats/users/${user.id}`);
       const progress = await getDataSafe<DailyProgress[]>(`api/stats/users/${user.id}/progress`);
 
@@ -48,6 +50,7 @@ export default function Page() {
     fetchData();
   }, [user]);
 
+  // Affiche une page de chargement tant que les données ne sont pas disponibles
   if (!progressData.length) {
     return <LoadingPage />;
   }

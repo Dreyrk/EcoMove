@@ -326,7 +326,7 @@ class StatsService {
     }
   }
 
-  // Récupère la progression quotidienne d’un utilisateur avec pagination
+  // Récupère la progression quotidienne des 30 derniers jours d’un utilisateur avec pagination
   async getUserProgress(
     userId: number,
     pagination: PaginationParams
@@ -344,7 +344,12 @@ class StatsService {
 
       // Récupérer les activités des 30 derniers jours
       const today = new Date();
-      const startDate = new Date(today.getTime() - 29 * 24 * 60 * 60 * 1000);
+      today.setHours(23, 59, 59, 999); // Fin de la journée actuelle locale
+      // 29 jours avant today
+
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() - 29);
+      startDate.setHours(0, 0, 0, 0); // Début de la journée 29 jours avant, locale aussi
 
       const activities = await this.db.activity.findMany({
         where: {

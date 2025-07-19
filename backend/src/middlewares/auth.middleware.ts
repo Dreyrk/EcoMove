@@ -17,6 +17,7 @@ class AuthMiddleware {
   verifyToken = (req: Request, res: Response, next: NextFunction) => {
     // Récupération du token depuis les cookies ou l'en-tête Authorization
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
     // Vérification de la présence du token
     if (!token) {
       throw new AppError("Authentification requise : aucun token fourni", 401);

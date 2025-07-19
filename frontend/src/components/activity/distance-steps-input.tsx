@@ -26,6 +26,7 @@ export default function DistanceStepsInput({
   return (
     <div className="space-y-4">
       {activityType === "VELO" ? (
+        // Affichage spécifique pour le vélo : uniquement la distance
         <div className="space-y-2">
           <Label htmlFor="distanceKm">Distance (km)</Label>
           <div className="relative">
@@ -46,6 +47,7 @@ export default function DistanceStepsInput({
           {errorDistance?.length && <p className="text-sm text-red-600">{errorDistance.join(", ")}</p>}
         </div>
       ) : (
+        // Pour la marche : distance ou nombre de pas
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -100,10 +102,12 @@ export default function DistanceStepsInput({
   );
 }
 
+// Convertit des pas en kilomètres
 function getDistanceWithSteps(steps: number): number {
   return Number((steps / 1500).toFixed(1));
 }
 
+// Convertit des kilomètres en pas
 function getStepsWithDistance(distance: number): number {
   return distance * 1500;
 }
