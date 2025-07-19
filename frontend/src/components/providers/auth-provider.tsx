@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const getProfile = async () => {
     try {
       const response = await fetch(`${API_URL}/api/auth/profile`, {
-        method: "GET",
         credentials: "include",
       });
 

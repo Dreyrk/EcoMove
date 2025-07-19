@@ -3,6 +3,7 @@ import db from "../lib/db";
 import { AppError } from "../middlewares/error.middleware";
 import { PaginationParams } from "../utils/pagination";
 import { DataResponse } from "../types";
+import formatDateFr from "../utils/formatDateFr";
 
 class ActivityService {
   private db: PrismaClient;
@@ -11,49 +12,49 @@ class ActivityService {
     this.db = db;
   }
 
-  // Créer une activité (déclaration quotidienne)
-  async createActivity(
-    userId: number,
-    date: Date,
-    type: ActivityType,
-    steps?: number,
-    distanceKm?: number
-  ): Promise<Activity> {
-    // Vérifie que la date n'est pas dans le futur
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  async createActivity(userId: number, dateString: string, type: ActivityType, distanceKm: number, steps?: number) {
+    // Parser la date (DD/MM/YYYY → Date)
+    const [day, month, year] = dateString.split("/").map(Number);
+    const activityDate = new Date(year, month - 1, day);
 
-    if (date > today) {
-      throw new AppError("La date de l'activité ne peut pas être dans le futur.", 400);
+    // Comparer avec aujourd’hui (format fr)
+    const todayFr = formatDateFr(new Date());
+    const activityDateFr = formatDateFr(activityDate);
+
+    if (activityDateFr !== todayFr) {
+      throw new AppError("La date de l'activité doit être aujourd'hui uniquement.", 400);
     }
 
-    // Vérifie si une activité pour ce userId + date existe déjà
+    // Vérifie unicité par (userId + date)
     const existing = await this.db.activity.findUnique({
       where: {
-        userId_date: { userId, date },
+        userId_date: {
+          userId,
+          date: activityDate,
+        },
       },
     });
 
     if (existing) {
-      throw new AppError("Une activité a déjà été déclarée pour cette date.", 409);
+      throw new AppError("Une activité a déjà été déclarée aujourd’hui.", 409);
     }
 
-    // Calcul auto si MARCHE
-    let finalDistance = distanceKm ?? 0;
+    // Validation selon type
     if (type === "MARCHE") {
-      if (!steps) {
+      if (!steps || steps <= 0) {
         throw new AppError("Le nombre de pas est requis pour une activité MARCHE.", 400);
       }
-      finalDistance = steps / 1500;
+      // Calcul distance à partir des pas (1500 pas = 1 km)
+      distanceKm = parseFloat((steps / 1500).toFixed(1));
     }
 
     return this.db.activity.create({
       data: {
         userId,
-        date,
+        date: activityDate,
         type,
-        steps: steps ?? null,
-        distanceKm: finalDistance,
+        steps: type === "MARCHE" ? steps : null,
+        distanceKm,
       },
     });
   }
@@ -92,12 +93,18 @@ class ActivityService {
   async getActivitiesByUserId(userId: number, paginationMeta: PaginationParams): Promise<DataResponse<Activity>> {
     const { skip, take, page, per_page } = paginationMeta;
 
-    const activities = await this.db.activity.findMany({
-      where: { userId },
-      orderBy: { date: "desc" },
-      skip,
-      take,
-    });
+    // Exécutez les deux requêtes en parallèle pour plus d'efficacité
+    const [activities, total] = await this.db.$transaction([
+      this.db.activity.findMany({
+        where: { userId },
+        orderBy: { date: "desc" },
+        skip,
+        take,
+      }),
+      this.db.activity.count({
+        where: { userId },
+      }),
+    ]);
 
     return {
       data: activities,
@@ -106,7 +113,7 @@ class ActivityService {
         take,
         page,
         per_page,
-        total: activities.length,
+        total,
       },
     };
   }

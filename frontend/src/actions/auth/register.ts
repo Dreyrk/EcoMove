@@ -29,8 +29,6 @@ export default async function register(
   try {
     const response = await authFetcher("register", result.data);
 
-    console.log(response);
-
     if (!response.success) {
       return {
         success: false,

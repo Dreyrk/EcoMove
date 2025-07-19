@@ -73,3 +73,12 @@ export type FormState<T extends Record<string, any>> = {
     [K in keyof T]?: string[];
   };
 };
+
+export type ActivityDataType = {
+  id: number;
+  userId: number;
+  date: string;
+  type: "VELO" | "MARCHE";
+  distanceKm: number;
+  steps?: number | null;
+};
