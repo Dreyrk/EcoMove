@@ -1,4 +1,3 @@
-// Importation des dépendances nécessaires
 import { Request, Response, NextFunction } from "express";
 import authService from "../services/auth.service";
 import userService from "../services/user.service";
@@ -23,7 +22,10 @@ class AuthController {
       }
       res.status(200).json(successResponse(user));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
@@ -40,7 +42,10 @@ class AuthController {
       const user = await authService.register(parsed.data);
       res.status(201).json(successResponse(user));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
@@ -64,7 +69,10 @@ class AuthController {
         .status(200)
         .json(successResponse({ user }));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
@@ -83,7 +91,10 @@ class AuthController {
         .status(200)
         .json(successResponse(null, { message: "Déconnexion réussie" }));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 }

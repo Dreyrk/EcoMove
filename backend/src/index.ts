@@ -1,4 +1,5 @@
 import express from "express";
+import http from "http";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -40,7 +41,37 @@ app.use("/api/auth", authRouter); // Authentification des utilisateurs
 // Middleware de gestion des erreurs
 app.use(errorHandler);
 
-// Start server
-app.listen(port, () => {
-  console.log(`🚀 Server ready at http://localhost:${port}`);
-});
+// La logique de démarrage du serveur ne doit être exécutée que si le fichier est la 'main' entrée.
+// Cela empêche le serveur de démarrer lorsque l'application est importée (par exemple, par Supertest).
+if (require.main === module) {
+  const server = http.createServer(app).listen(port, () => {
+    console.log(`🚀 Server ready at http://localhost:${port}`);
+  });
+
+  // Gestion de l'arrêt gracieux du serveur
+  process.on("SIGTERM", () => {
+    console.log("SIGTERM signal received: closing HTTP server");
+    server.close(() => {
+      console.log("HTTP server closed.");
+    });
+  });
+
+  // En cas d'erreurs non gérées
+  process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+    // Arrêter le processus pour éviter un état non stable
+    server.close(() => {
+      process.exit(1);
+    });
+  });
+
+  process.on("uncaughtException", (error) => {
+    console.error("Uncaught Exception:", error);
+    // Arrêter le processus pour éviter un état non stable
+    server.close(() => {
+      process.exit(1);
+    });
+  });
+}
+
+export default app;

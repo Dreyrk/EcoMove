@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -51,8 +52,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         setUser(null);
       }
-    } catch (error) {
-      console.error("Erreur lors de la vérification du statut d'authentification:", error);
+    } catch (e) {
       setUser(null);
     } finally {
       setIsLoading(false);

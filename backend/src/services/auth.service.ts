@@ -1,4 +1,3 @@
-// Importation des dépendances nécessaires
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PrismaClient, UserRoleType } from "@prisma/client";

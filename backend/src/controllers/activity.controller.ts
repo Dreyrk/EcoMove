@@ -1,5 +1,4 @@
-// Importation des dépendances nécessaires
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import activityService from "../services/activity.service";
 import { getPagination } from "../utils/pagination";
 import { successResponse } from "../utils/response";
@@ -9,7 +8,7 @@ import { AppError } from "../middlewares/error.middleware";
 import { formatZodErrors } from "../utils/formatZodErrors";
 class ActivityController {
   // Crée une nouvelle activité avec validation
-  async createActivity(req: Request, res: Response) {
+  async createActivity(req: Request, res: Response, next: NextFunction) {
     try {
       // Vérifier l'utilisateur authentifié
       if (!req.user) {
@@ -32,23 +31,29 @@ class ActivityController {
       const activity = await activityService.createActivity(userId, date, type, distanceKm, steps);
       res.status(201).json(successResponse(activity));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
   // Récupère toutes les activités avec pagination
-  async getAllActivities(req: Request, res: Response) {
+  async getAllActivities(req: Request, res: Response, next: NextFunction) {
     try {
       const pagination = getPagination(req);
       const { data, meta } = await activityService.getAllActivities(pagination);
       res.status(200).json(successResponse(data, meta));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
   // Récupère les activités d'un utilisateur avec pagination
-  async getActivitiesByUserId(req: Request, res: Response) {
+  async getActivitiesByUserId(req: Request, res: Response, next: NextFunction) {
     try {
       // Vérifier l'utilisateur authentifié
       if (!req.user) {
@@ -71,12 +76,15 @@ class ActivityController {
       const { data, meta } = await activityService.getActivitiesByUserId(userId, pagination);
       res.status(200).json(successResponse(data, meta));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
   // Supprime une activité par ID
-  async deleteActivity(req: Request, res: Response) {
+  async deleteActivity(req: Request, res: Response, next: NextFunction) {
     try {
       // Vérifier l'utilisateur authentifié
       if (!req.user) {
@@ -97,7 +105,10 @@ class ActivityController {
       await activityService.deleteActivity(id);
       res.status(200).json(successResponse(null, { message: "Activité supprimée avec succès" }));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 }

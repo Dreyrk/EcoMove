@@ -1,0 +1,20 @@
+{
+  "name": "mobility_challenge",
+  "version": "1.0.0",
+  "description": "Mobility Challenge",
+  "main": "index.js",
+  "scripts": {
+    "dev": "docker compose -f docker-compose.yml up -d --build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dreyrk/Mobility_Challenge.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dreyrk/Mobility_Challenge/issues"
+  },
+  "homepage": "https://github.com/Dreyrk/Mobility_Challenge#readme"
+}

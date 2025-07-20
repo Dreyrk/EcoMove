@@ -1,13 +1,24 @@
-// Importation des types et utilitaires
-import { APIResponse, APIErrorResponse } from "@/types";
-import getBaseUrl from "./getBaseUrl";
+"use server";
+
+import { APIErrorResponse, APIResponse } from "@/types";
 import { isErrorResponse } from "./isErrorResponse";
+import getBaseUrl from "./getBaseUrl";
+import { cookies } from "next/headers";
 
 // Effectue une requête GET vers l'API
-export async function getData<T>(url: string): Promise<APIResponse<T> | APIErrorResponse> {
+export async function getServerData<T>(url: string): Promise<APIResponse<T> | APIErrorResponse> {
   try {
     if (!url) {
       return { status: "error", message: "URL invalide", data: { code: "INVALID_URL" } };
+    }
+
+    const cookieStore = await cookies();
+    const authCookie = cookieStore.get("token");
+
+    const headers: Record<string, string> = {};
+
+    if (authCookie) {
+      headers.Cookie = `${authCookie.name}=${authCookie.value}`;
     }
 
     const baseUrl = getBaseUrl();
@@ -16,6 +27,7 @@ export async function getData<T>(url: string): Promise<APIResponse<T> | APIError
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
+        ...headers,
       },
       // Timeout de 10 secondes
       signal: AbortSignal.timeout(10000),
@@ -52,8 +64,8 @@ export async function getData<T>(url: string): Promise<APIResponse<T> | APIError
 }
 
 // Effectue une requête GET avec garantie de réponse de succès
-export async function getDataSafe<T>(url: string): Promise<APIResponse<T>> {
-  const response = await getData<T>(url);
+export async function getServerDataSafe<T>(url: string): Promise<APIResponse<T>> {
+  const response = await getServerData<T>(url);
 
   if (isErrorResponse(response)) {
     throw new Error(`${response.message}${response.data?.code ? ` (${response.data.code})` : ""}`);

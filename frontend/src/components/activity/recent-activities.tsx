@@ -6,12 +6,12 @@ import formatDateFr from "@/utils/formatDateFr";
 import { Loader } from "../ui/loader";
 
 interface RecentActivitiesProps {
-  activities: ActivityDataType[];
+  activities: ActivityDataType[] | null;
   loading: boolean;
 }
 
 export default function RecentActivities({ activities, loading }: RecentActivitiesProps) {
-  if (loading) {
+  if (loading || !activities) {
     return (
       <Card>
         <CardHeader>

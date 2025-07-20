@@ -9,7 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-export default function AuthPage() {
+export default function Page() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const router = useRouter();
 

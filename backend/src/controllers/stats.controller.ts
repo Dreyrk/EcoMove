@@ -1,4 +1,3 @@
-// Importation des dépendances nécessaires
 import { Request, Response, NextFunction } from "express";
 import statsService from "../services/stats.service";
 import { getPagination } from "../utils/pagination";
@@ -7,7 +6,7 @@ import { AppError } from "../middlewares/error.middleware";
 
 class StatsController {
   // Récupère les statistiques globales du challenge
-  async getGeneralStats(req: Request, res: Response) {
+  async getGeneralStats(req: Request, res: Response, next: NextFunction) {
     try {
       const stats = await statsService.getGeneralStats();
       res.status(200).json(successResponse(stats));
@@ -17,29 +16,35 @@ class StatsController {
   }
 
   // Récupère le classement des équipes
-  async getTeamRankings(req: Request, res: Response) {
+  async getTeamRankings(req: Request, res: Response, next: NextFunction) {
     try {
       const pagination = getPagination(req);
       const { data, meta } = await statsService.getTeamRankings(pagination, true);
       res.status(200).json(successResponse(data, meta));
     } catch (error) {
-      throw new AppError("Erreur lors de la récupération du classement des équipes", 500, "DATABASE_ERROR");
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
   // Récupère le classement individuel des utilisateurs
-  async getIndividualRankings(req: Request, res: Response) {
+  async getIndividualRankings(req: Request, res: Response, next: NextFunction) {
     try {
       const pagination = getPagination(req);
       const { data, meta } = await statsService.getIndividualRankings(pagination, true);
       res.status(200).json(successResponse(data, meta));
     } catch (error) {
-      throw new AppError("Erreur lors de la récupération du classement individuel", 500, "DATABASE_ERROR");
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
   // Récupère les statistiques d’un utilisateur spécifique
-  async getUserStats(req: Request, res: Response) {
+  async getUserStats(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
       if (isNaN(id) || id <= 0) {
@@ -55,12 +60,15 @@ class StatsController {
       }
       res.status(200).json(successResponse(stats));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
   // Récupère la progression d’un utilisateur avec pagination
-  async getUserProgress(req: Request, res: Response) {
+  async getUserProgress(req: Request, res: Response, next: NextFunction) {
     try {
       const id = Number(req.params.id);
       if (isNaN(id) || id <= 0) {
@@ -76,7 +84,10 @@ class StatsController {
       }
       res.status(200).json(successResponse(stats.data, stats.meta));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 }

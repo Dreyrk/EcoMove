@@ -76,7 +76,7 @@ export default async function submitActivity(
     }
 
     // Revalidation du cache pour actualiser les données
-    revalidatePath("/activity/new");
+    revalidatePath("/");
 
     return {
       success: true,

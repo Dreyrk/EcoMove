@@ -1,5 +1,4 @@
-// Importation des dépendances nécessaires
-import { PrismaClient, User, UserRoleType } from "@prisma/client";
+import { PrismaClient, UserRoleType } from "@prisma/client";
 import { z } from "zod";
 import db from "../lib/db";
 import { UserSchema } from "../schemas/user.schema";
@@ -12,7 +11,7 @@ export interface UserWithoutPassword {
   email: string;
   role: UserRoleType;
   teamId: number | null;
-  createdAt: string;
+  createdAt?: string;
   team?: {
     id: number;
     name: string;
@@ -108,11 +107,6 @@ class UserService {
   // Récupère un utilisateur par ID avec informations d'équipe
   async getUserById(id: number): Promise<UserWithoutPassword | null> {
     try {
-      // Valider l'ID
-      if (!z.number().int().positive().safeParse(id).success) {
-        throw new AppError("ID invalide", 400, "INVALID_ID");
-      }
-
       const user = await this.db.user.findUnique({
         where: { id },
         select: {
@@ -121,7 +115,6 @@ class UserService {
           email: true,
           role: true,
           teamId: true,
-          createdAt: true,
           team: {
             select: { id: true, name: true },
           },
@@ -132,10 +125,7 @@ class UserService {
         return null;
       }
 
-      return {
-        ...user,
-        createdAt: user.createdAt.toISOString(),
-      };
+      return user;
     } catch (error) {
       if (error instanceof AppError) {
         throw error;

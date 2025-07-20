@@ -1,4 +1,3 @@
-// Importation des dépendances nécessaires
 import express from "express";
 import statsController from "../controllers/stats.controller";
 import authMiddleware from "../middlewares/auth.middleware";

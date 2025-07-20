@@ -1,4 +1,3 @@
-// Importation des dépendances nécessaires
 import { PrismaClient, Activity, ActivityType } from "@prisma/client";
 import db from "../lib/db";
 import { AppError } from "../middlewares/error.middleware";
