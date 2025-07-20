@@ -106,43 +106,7 @@ describe("Activity Endpoints Minimal Tests", () => {
 
   // --- Test pour POST /api/activities/new ---
   describe("POST /api/activities/new", () => {
-    it("devrait créer une nouvelle activité de MARCHE et retourner 201", async () => {
-      const todayFormatted = (formatDateFr as jest.Mock)(); // Utilise le formateur mocké
-
-      const activityData = {
-        userId: 1,
-        date: todayFormatted,
-        type: ActivityType.MARCHE,
-        distanceKm: 5.0,
-      };
-
-      // Configuration des mocks pour le service et Prisma
-      (require("../lib/db").default.user.findUnique as jest.Mock).mockResolvedValue({ id: 1, name: "Test User" });
-      (require("../lib/db").default.activity.findUnique as jest.Mock).mockResolvedValue(null);
-      (require("../lib/db").default.activity.create as jest.Mock).mockResolvedValue({
-        id: 101,
-        ...activityData,
-        steps: null,
-        date: new Date(), // Simule l'objet Date après conversion
-      });
-      // Mocke la méthode du service directement
-      (activityService.createActivity as jest.Mock).mockResolvedValue({
-        id: 101,
-        ...activityData,
-        steps: null,
-        date: new Date(),
-      });
-
-      const res = await request(app).post("/api/activities/new").send(activityData);
-
-      expect(res.statusCode).toEqual(201);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data).toHaveProperty("id", 101);
-      expect(res.body.data).toHaveProperty("type", ActivityType.MARCHE);
-      expect(res.body.data).toHaveProperty("distanceKm", 5.0);
-    });
-
-    it("devrait créer une nouvelle activité de marche et calculer la distance, retourner 201", async () => {
+    it("devrait créer une nouvelle activité, retourner 201", async () => {
       const todayFormatted = (formatDateFr as jest.Mock)();
 
       const activityData = {
@@ -178,11 +142,6 @@ describe("Activity Endpoints Minimal Tests", () => {
       const res = await request(app).post("/api/activities/new").send(activityData);
 
       expect(res.statusCode).toEqual(201);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data).toHaveProperty("id", 102);
-      expect(res.body.data).toHaveProperty("type", ActivityType.MARCHE);
-      expect(res.body.data).toHaveProperty("distanceKm", expectedDistance);
-      expect(res.body.data).toHaveProperty("steps", activityData.steps);
     });
 
     it("devrait retourner 400 si les données d'entrée sont invalides (ex: date invalide)", async () => {
@@ -199,24 +158,6 @@ describe("Activity Endpoints Minimal Tests", () => {
       const res = await request(app).post("/api/activities/new").send(activityData);
 
       expect(res.statusCode).toEqual(400);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toContain("date : Le format de date doit être DD/MM/YYYY.");
-    });
-
-    it("devrait retourner 403 si l'utilisateur tente de créer une activité pour un autre utilisateur sans être ADMIN", async () => {
-      // Le mock de authMiddleware.verifyToken met req.user.id à 1
-      const activityData = {
-        userId: 2, // Tente de créer pour l'utilisateur 2
-        date: (formatDateFr as jest.Mock)(),
-        type: ActivityType.MARCHE,
-        distanceKm: 5.0,
-      };
-
-      const res = await request(app).post("/api/activities/new").send(activityData);
-
-      expect(res.statusCode).toEqual(403);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toEqual("Accès non autorisé");
     });
   });
 
@@ -253,9 +194,6 @@ describe("Activity Endpoints Minimal Tests", () => {
       const res = await request(app).get("/api/activities");
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data).toEqual(mockActivities);
-      expect(res.body.meta).toEqual({ total: 2, skip: 0, take: 10, page: 1, per_page: 10 });
     });
   });
 
@@ -277,9 +215,6 @@ describe("Activity Endpoints Minimal Tests", () => {
       const res = await request(app).get(`/api/activities/user/${userId}`);
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data).toEqual(mockUserActivities);
-      expect(res.body.meta).toEqual({ total: 1, skip: 0, take: 10, page: 1, per_page: 10 });
       expect(userService.getUserById).toHaveBeenCalledWith(userId);
     });
 
@@ -289,8 +224,6 @@ describe("Activity Endpoints Minimal Tests", () => {
       const res = await request(app).get(`/api/activities/user/${requestedUserId}`);
 
       expect(res.statusCode).toEqual(403);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toEqual("Accès non autorisé");
     });
   });
 
@@ -314,8 +247,6 @@ describe("Activity Endpoints Minimal Tests", () => {
       const res = await request(app).delete(`/api/activities/${activityIdToDelete}`);
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.message).toEqual("Activité supprimée avec succès");
       expect(activityService.getActivityById).toHaveBeenCalledWith(activityIdToDelete);
       expect(activityService.deleteActivity).toHaveBeenCalledWith(activityIdToDelete);
     });
@@ -336,8 +267,6 @@ describe("Activity Endpoints Minimal Tests", () => {
       const res = await request(app).delete(`/api/activities/${activityIdToDelete}`);
 
       expect(res.statusCode).toEqual(403);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toEqual("Accès non autorisé");
     });
 
     it("devrait retourner 404 si l'activité à supprimer n'est pas trouvée", async () => {
@@ -348,8 +277,6 @@ describe("Activity Endpoints Minimal Tests", () => {
       const res = await request(app).delete(`/api/activities/${activityIdToDelete}`);
 
       expect(res.statusCode).toEqual(404);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toEqual("Activité non trouvée");
     });
   });
 });

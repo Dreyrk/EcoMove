@@ -11,7 +11,7 @@ interface RecentActivitiesProps {
 }
 
 export default function RecentActivities({ activities, loading }: RecentActivitiesProps) {
-  if (loading) {
+  if (loading || !activities) {
     return (
       <Card>
         <CardHeader>

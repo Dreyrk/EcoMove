@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import teamService from "../services/team.service";
 import { getPagination } from "../utils/pagination";
@@ -9,18 +9,21 @@ import { formatZodErrors } from "../utils/formatZodErrors";
 
 class TeamController {
   // Récupère toutes les équipes avec pagination
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const pagination = getPagination(req);
       const { data, meta } = await teamService.getAllTeams(pagination);
       res.status(200).json(successResponse(data, meta));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
   // Récupère une équipe spécifique par son ID
-  async getById(req: Request, res: Response) {
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const team = await teamService.getTeamById(Number(req.params.id));
       if (!team) {
@@ -28,12 +31,15 @@ class TeamController {
       }
       res.status(200).json(successResponse(team));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 
   // Crée une nouvelle équipe avec validation des données
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
       const validatedData = TeamSchema.parse(req.body);
       const { name, description } = validatedData;
@@ -44,13 +50,16 @@ class TeamController {
         const errorMessages = formatZodErrors(error);
         throw new AppError(`Erreur de validation : ${errorMessages.join("; ")}`, 400, "VALIDATION_ERROR");
       } else {
-        throw new AppError((error as Error).message, 500);
+        if (error instanceof AppError) {
+          return next(error);
+        }
+        next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
       }
     }
   }
 
   // Met à jour une équipe existante avec validation des données
-  async update(req: Request, res: Response) {
+  async update(req: Request, res: Response, next: NextFunction) {
     try {
       const validatedData = TeamSchema.parse(req.body);
       const { name, description } = validatedData;
@@ -64,13 +73,16 @@ class TeamController {
         const errorMessages = formatZodErrors(error);
         throw new AppError(`Erreur de validation : ${errorMessages.join("; ")}`, 400, "VALIDATION_ERROR");
       } else {
-        throw new AppError((error as Error).message, 500);
+        if (error instanceof AppError) {
+          return next(error);
+        }
+        next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
       }
     }
   }
 
   // Supprime une équipe par son ID
-  async delete(req: Request, res: Response) {
+  async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const success = await teamService.deleteTeam(Number(req.params.id));
       if (!success) {
@@ -78,7 +90,10 @@ class TeamController {
       }
       res.status(200).json(successResponse(null, { message: "Équipe supprimée avec succès" }));
     } catch (error) {
-      throw new AppError((error as Error).message, 500);
+      if (error instanceof AppError) {
+        return next(error);
+      }
+      next(new AppError("Erreur interne du serveur", 500, "INTERNAL_SERVER_ERROR"));
     }
   }
 }
