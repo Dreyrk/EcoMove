@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import type { Activity } from "@/app/admin/management/page";
+import { Activity } from "./pages/activities-page";
+import formatDateFr from "@/utils/formatDateFr";
 
 interface ActivityModalProps {
   activity: Activity | null;
@@ -17,39 +18,37 @@ export function ActivityModal({ activity, isOpen, onClose }: ActivityModalProps)
 
   const getActivityTypeColor = (type: string) => {
     switch (type) {
-      case "cycling":
+      case "VELO":
         return "bg-blue-100 text-blue-800";
-      case "walking":
+      case "MARCHE":
         return "bg-green-100 text-green-800";
-      case "running":
-        return "bg-orange-100 text-orange-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
   const formatDistance = (activity: Activity) => {
-    if (activity.type === "walking" || activity.type === "running") {
-      return `${activity.distance}km (${activity.steps || Math.round(activity.distance * 1500)} steps)`;
+    if (activity.type === "MARCHE" || activity.type === "VELO") {
+      return `${activity.distanceKm}km (${activity.steps || Math.round(activity.distanceKm * 1500)} pas)`;
     }
-    return `${activity.distance}km`;
+    return `${activity.distanceKm}km`;
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Activity Details</DialogTitle>
+          <DialogTitle>Détails</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium text-gray-500">Activity ID</p>
+              <p className="text-sm font-medium text-gray-500">ID</p>
               <p className="text-sm">{activity.id}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">User</p>
-              <p className="text-sm">{activity.userName}</p>
+              <p className="text-sm font-medium text-gray-500">Utilisateur</p>
+              <p className="text-sm">{activity.user.name}</p>
             </div>
           </div>
 
@@ -73,8 +72,8 @@ export function ActivityModal({ activity, isOpen, onClose }: ActivityModalProps)
 
           {activity.steps && (
             <div>
-              <p className="text-sm font-medium text-gray-500">Steps</p>
-              <p className="text-sm">{activity.steps.toLocaleString()} steps</p>
+              <p className="text-sm font-medium text-gray-500">Pas</p>
+              <p className="text-sm">{activity.steps.toLocaleString()} pas</p>
             </div>
           )}
 
@@ -82,7 +81,7 @@ export function ActivityModal({ activity, isOpen, onClose }: ActivityModalProps)
 
           <div>
             <p className="text-sm font-medium text-gray-500">Created At</p>
-            <p className="text-sm">{new Date(activity.createdAt).toLocaleString()}</p>
+            <p className="text-sm">{formatDateFr(new Date(activity.createdAt || 0))}</p>
           </div>
         </div>
         <DialogFooter>

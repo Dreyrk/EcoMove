@@ -1,9 +1,10 @@
 "use client";
 
+import { User } from "@/components/providers/auth-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Team } from "@/types";
 import { Users, Users2, Activity, MapPin } from "lucide-react";
-import type { User, Team, Activity as ActivityType } from "@/app/admin/management/page";
-
+import { Activity as ActivityType } from "./activities-page";
 interface DashboardPageProps {
   users: User[];
   teams: Team[];
@@ -74,7 +75,7 @@ export function DashboardPage({ users, teams, activities }: DashboardPageProps) 
               {activities.slice(0, 5).map((activity) => (
                 <div key={activity.id} className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">{activity.userName}</p>
+                    <p className="font-medium">{activity.user.name}</p>
                     <p className="text-sm text-gray-600">
                       {activity.type} - {activity.distanceKm}km
                     </p>
@@ -93,7 +94,7 @@ export function DashboardPage({ users, teams, activities }: DashboardPageProps) 
           <CardContent>
             <div className="space-y-4">
               {teams.map((team) => {
-                const teamUserCount = users.filter((user) => user.teamId === team.id).length;
+                const teamUserCount = users.filter((user) => user.team.id === team.id).length;
                 return (
                   <div key={team.id} className="flex items-center justify-between">
                     <div>
