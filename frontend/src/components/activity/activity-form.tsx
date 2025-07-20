@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useActionState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -15,7 +17,7 @@ import DailyActivitySubmitted from "./daily-activity-submitted";
 import { toast } from "sonner";
 
 interface ActivityFormProps {
-  existingActivities: ActivityDataType[];
+  existingActivities: ActivityDataType[] | null;
   hasActivityForDate: boolean;
 }
 

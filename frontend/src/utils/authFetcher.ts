@@ -28,16 +28,21 @@ interface AuthResponse {
 
 export async function authFetcher(mode: AuthMode, data?: AuthFormData): Promise<AuthResponse> {
   try {
+    console.log("test");
     const baseUrl = getBaseUrl();
+
+    if (!baseUrl) {
+      return { success: false, message: "URL invalide" };
+    }
+
     const res = await fetch(`${baseUrl}/api/auth/${mode}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", // Important pour recevoir et envoyer les cookies
+      credentials: "include", // Pour recevoir et envoyer les cookies
       body: JSON.stringify(data),
     });
-
     const resData = await res.json();
 
     if (!res.ok) {

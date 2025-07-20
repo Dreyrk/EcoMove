@@ -25,7 +25,7 @@ export default function RegisterForm({ onRegisterSuccess }: { onRegisterSuccess:
     const fetchTeams = async () => {
       try {
         const res = await getDataSafe<TeamType[]>("api/teams/");
-        setTeams(res.data);
+        setTeams(res.data as TeamType[]);
       } catch (e) {
         toast.error("Erreur lors du chargement des équipes.", { description: (e as Error).message });
       }

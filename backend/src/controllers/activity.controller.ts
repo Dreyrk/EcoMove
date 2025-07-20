@@ -1,4 +1,3 @@
-// Importation des dépendances nécessaires
 import { Request, Response } from "express";
 import activityService from "../services/activity.service";
 import { getPagination } from "../utils/pagination";

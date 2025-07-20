@@ -1,4 +1,3 @@
-// Importation des dépendances nécessaires
 import { Request, Response, NextFunction } from "express";
 import statsService from "../services/stats.service";
 import { getPagination } from "../utils/pagination";

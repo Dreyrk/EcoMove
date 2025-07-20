@@ -1,4 +1,3 @@
-// Importation des dépendances nécessaires
 import { PrismaClient, ActivityType } from "@prisma/client";
 import db from "../lib/db";
 import { PaginationParams } from "../utils/pagination";
