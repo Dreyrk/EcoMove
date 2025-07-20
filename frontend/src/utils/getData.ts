@@ -1,17 +1,17 @@
 // Importation des types et utilitaires
-import { APIResponse, APIErrorResponse } from "@/types";
+import { APIResponse, APIErrorResponse, PaginationType } from "@/types";
 import getBaseUrl from "./getBaseUrl";
 import { isErrorResponse } from "./isErrorResponse";
 
 // Effectue une requête GET vers l'API
-export async function getData<T>(url: string): Promise<APIResponse<T> | APIErrorResponse> {
+export async function getData<T>(url: string, meta?: PaginationType): Promise<APIResponse<T> | APIErrorResponse> {
   try {
     if (!url) {
       return { status: "error", message: "URL invalide", data: { code: "INVALID_URL" } };
     }
 
     const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/${url}`, {
+    const response = await fetch(`${baseUrl}/${url}${meta?.page ? "?page=" + meta.page : ""}`, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -52,8 +52,8 @@ export async function getData<T>(url: string): Promise<APIResponse<T> | APIError
 }
 
 // Effectue une requête GET avec garantie de réponse de succès
-export async function getDataSafe<T>(url: string): Promise<APIResponse<T>> {
-  const response = await getData<T>(url);
+export async function getDataSafe<T>(url: string, meta?: PaginationType): Promise<APIResponse<T>> {
+  const response = await getData<T>(url, meta);
 
   if (isErrorResponse(response)) {
     throw new Error(`${response.message}${response.data?.code ? ` (${response.data.code})` : ""}`);

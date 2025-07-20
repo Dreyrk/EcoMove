@@ -11,6 +11,7 @@ export interface User {
   email: string;
   role: string;
   team: { id: number; name: string };
+  createdAt?: string;
 }
 
 interface AuthContextType {

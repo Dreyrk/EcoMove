@@ -21,7 +21,6 @@ export interface APIResponse<T> {
   message?: string;
 }
 
-// Interface pour les erreurs
 export interface APIErrorResponse {
   status: "error";
   message: string;
@@ -94,4 +93,20 @@ export type ActivityDataType = {
   type: "VELO" | "MARCHE";
   distanceKm: number;
   steps?: number | null;
+  createdAt?: number;
 };
+
+export type Team = {
+  id: number;
+  name: string;
+  description?: string;
+  createdAt?: string;
+};
+
+export interface PaginationType {
+  total: number;
+  skip: number;
+  take: number;
+  page: number;
+  per_page: number;
+}

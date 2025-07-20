@@ -14,13 +14,12 @@ class TeamService {
   // Récupère toutes les équipes avec pagination
   async getAllTeams(pagination: PaginationParams): Promise<DataResponse<Team[]>> {
     try {
-      const { page, per_page } = pagination;
-      const skip = (page - 1) * per_page;
+      const { skip, take } = pagination;
 
       const [teams, total] = await Promise.all([
         this.db.team.findMany({
           skip,
-          take: per_page,
+          take,
           orderBy: { name: "asc" },
         }),
         this.db.team.count(),
@@ -65,11 +64,18 @@ class TeamService {
   }
 
   // Met à jour une équipe existante
-  async updateTeam(id: number, name: string, description?: string): Promise<Team | null> {
+  async updateTeam(id: number, name?: string, description?: string): Promise<Team | null> {
     try {
-      const existingTeam = await this.db.team.findFirst({ where: { name } });
-      if (existingTeam?.id && existingTeam.id !== id) {
-        throw new AppError("Une autre équipe avec ce nom existe déjà", 400, "TEAM_NAME_EXISTS");
+      const existingTeam = await this.db.team.findUnique({ where: { id } });
+      if (!existingTeam) {
+        throw new AppError("Équipe non trouvée", 404, "TEAM_NOT_FOUND");
+      }
+
+      if (name && name !== existingTeam.name) {
+        const nameExists = await this.db.team.findFirst({ where: { name } });
+        if (nameExists && nameExists.id !== id) {
+          throw new AppError("Une autre équipe avec ce nom existe déjà", 400, "TEAM_NAME_EXISTS");
+        }
       }
 
       const team = await this.db.team.update({
@@ -85,21 +91,29 @@ class TeamService {
     }
   }
 
-  // Supprime une équipe par son ID
+  // Supprime une équipe par son ID et réaffecte les utilisateurs à "Unassigned"
   async deleteTeam(id: number): Promise<boolean> {
     try {
-      // Vérifier si l'équipe existe
       const team = await this.db.team.findUnique({ where: { id } });
       if (!team) {
-        return false;
+        throw new AppError("Équipe non trouvée", 404, "TEAM_NOT_FOUND");
       }
 
-      // Vérifier s'il y a des utilisateurs associés
-      const userCount = await this.db.user.count({ where: { teamId: id } });
-      if (userCount > 0) {
-        throw new AppError("Impossible de supprimer une équipe avec des utilisateurs associés", 400, "TEAM_HAS_USERS");
+      // Vérifier si une équipe "Unassigned" existe, sinon la créer
+      let unassignedTeam = await this.db.team.findFirst({ where: { name: "Unassigned" } });
+      if (!unassignedTeam) {
+        unassignedTeam = await this.db.team.create({
+          data: { name: "Unassigned", description: "Équipe par défaut pour les utilisateurs sans équipe" },
+        });
       }
 
+      // Réaffecter les utilisateurs à l'équipe "Unassigned"
+      await this.db.user.updateMany({
+        where: { teamId: id },
+        data: { teamId: unassignedTeam.id },
+      });
+
+      // Supprimer l'équipe
       await this.db.team.delete({ where: { id } });
       return true;
     } catch (error) {
