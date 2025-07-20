@@ -57,24 +57,10 @@ Ce projet est un monorepo structuré comme suit :
 - **`/frontend`**:
   - **Framework :** [Next.js](https://nextjs.org/)
   - **Langage :** [TypeScript](https://www.typescriptlang.org/)
-  - **Styling :** [Tailwind CSS]()
+  - **Styling :** [Tailwind CSS](https://tailwindcss.com/)
 
 ## ⚙️ Scripts utiles
 
 - `npm run dev`: Lance l'environnement de développement complet.
 - `npm run build`: Construit les applications frontend et backend pour la production.
 - `npm run start`: Démarre les applications en mode production (après un `build`).
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! Si vous souhaitez améliorer ce projet, merci de forker le dépôt et de créer une Pull Request.
-
-1.  Forkez le projet
-2.  Créez votre branche de fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3.  Commitez vos changements (`git commit -m 'Add some AmazingFeature'`)
-4.  Pushez vers la branche (`git push origin feature/AmazingFeature`)
-5.  Ouvrez une Pull Request
-
-## 📄 Licence
-
-Ce projet est distribué sous la licence MIT. Voir le fichier `LICENSE` pour plus d'informations.
