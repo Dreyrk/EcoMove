@@ -28,7 +28,6 @@ interface AuthResponse {
 
 export async function authFetcher(mode: AuthMode, data?: AuthFormData): Promise<AuthResponse> {
   try {
-    console.log("test");
     const baseUrl = getBaseUrl();
 
     if (!baseUrl) {

@@ -37,11 +37,11 @@ async function main() {
   console.log(`✅ ${createdTeams.length} départements créés`);
 
   // Créer les utilisateurs (employés)
-  const hashedPassword = await bcrypt.hash("password123", 10); // Mot de passe temporaire
+  const hashedPassword = await bcrypt.hash("password", 10);
   const users = [
     {
       name: "Marie Dubois",
-      email: "marie.dubois@challenge-mobilite.com",
+      email: "admin@email.com",
       teamId: createdTeams[0].id,
       role: UserRoleType.ADMIN,
     },

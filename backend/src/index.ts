@@ -8,6 +8,7 @@ import authRouter from "./routes/auth.routes";
 import statsRouter from "./routes/stats.routes";
 import teamRouter from "./routes/team.routes";
 import { errorHandler } from "./middlewares/error.middleware";
+import adminRouter from "./routes/admin.routes";
 
 dotenv.config();
 
@@ -37,15 +38,15 @@ app.use("/api/teams", teamRouter); // Gestion des équipes
 app.use("/api/stats", statsRouter); // Statistiques et classements
 app.use("/api/activities", activityRouter); // Gestion des activités
 app.use("/api/auth", authRouter); // Authentification des utilisateurs
+app.use("/api/admin", adminRouter); // Administration
 
 // Middleware de gestion des erreurs
 app.use(errorHandler);
 
-// La logique de démarrage du serveur ne doit être exécutée que si le fichier est la 'main' entrée.
 // Cela empêche le serveur de démarrer lorsque l'application est importée (par exemple, par Supertest).
 if (require.main === module) {
   const server = http.createServer(app).listen(port, () => {
-    console.log(`🚀 Server ready at http://localhost:${port}`);
+    console.log(`🚀 Server ready at port ${port}`);
   });
 
   // Gestion de l'arrêt gracieux du serveur

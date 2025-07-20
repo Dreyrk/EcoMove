@@ -40,18 +40,24 @@ jest.mock("../lib/db", () => ({
   },
 }));
 
-// Mock du middleware d'authentification (inchangé)
+// Mock du middleware d'authentification
 jest.mock("../middlewares/auth.middleware", () => ({
   __esModule: true,
   default: {
     verifyToken: jest.fn((req, res, next) => {
-      req.user = { id: 1, email: "test@example.com", role: UserRoleType.USER };
+      req.user = { id: 1, email: "test@example.com", role: UserRoleType.ADMIN };
+      next();
+    }),
+    restrictToAdmin: jest.fn((req, res, next) => {
+      if (req.user?.role !== "ADMIN") {
+        return res.status(403).json({ message: "Access denied" });
+      }
       next();
     }),
   },
 }));
 
-// Mock de userService (inchangé)
+// Mock de userService
 jest.mock("../services/user.service", () => ({
   __esModule: true,
   default: {
@@ -59,7 +65,7 @@ jest.mock("../services/user.service", () => ({
   },
 }));
 
-// Mock de getPagination (inchangé)
+// Mock de getPagination
 jest.mock("../utils/pagination", () => ({
   __esModule: true,
   getPagination: jest.fn(() => ({
@@ -70,7 +76,7 @@ jest.mock("../utils/pagination", () => ({
   })),
 }));
 
-// Mock de formatDateFr (inchangé)
+// Mock de formatDateFr
 jest.mock("../utils/formatDateFr", () => ({
   __esModule: true,
   default: jest.fn(), // Initialise juste un mock, la logique sera dans beforeEach

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Plus, BarChart3, Leaf } from "lucide-react";
+import { LayoutDashboard, Plus, BarChart3, Leaf, Lock } from "lucide-react";
 import NavLinkItem from "./nav-link-item";
 import UserProfileSection from "./user-profile-section";
 import ThemeToggle from "../themes/theme-toggle";
@@ -60,6 +60,15 @@ export default function Sidebar({
                     onClick={closeMobileMenu}
                   />
                 ))}
+                {user?.role === "ADMIN" && (
+                  <NavLinkItem
+                    name={"Administration"}
+                    href={"/admin/management"}
+                    icon={Lock}
+                    active={pathname === "/admin/management"}
+                    onClick={closeMobileMenu}
+                  />
+                )}
               </ul>
             </li>
 
