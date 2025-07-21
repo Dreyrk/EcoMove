@@ -1,31 +1,51 @@
-// Importation des types et utilitaires
 import { APIResponse, APIErrorResponse, PaginationType } from "@/types";
 import getBaseUrl from "./getBaseUrl";
 import { isErrorResponse } from "./isErrorResponse";
 
-// Effectue une requête GET vers l'API
+// Effectue une requête GET vers l'API via le proxy
 export async function getData<T>(url: string, meta?: PaginationType): Promise<APIResponse<T> | APIErrorResponse> {
   try {
-    if (!url) {
-      return { status: "error", message: "URL invalide", data: { code: "INVALID_URL" } };
+    // Validation de l'URL
+    if (!url || typeof url !== "string" || url.trim() === "") {
+      return {
+        status: "error",
+        message: "URL invalide",
+        data: { code: "INVALID_URL" },
+      };
     }
 
+    // Construction de l'URL du proxy
     const baseUrl = getBaseUrl();
+    const proxyPath = `/api/proxy/${url.replace(/^\/+/, "")}`; // Supprime les / initiaux
+    const queryString = meta?.page ? `?page=${encodeURIComponent(meta.page)}` : "";
+    const fullUrl = `${baseUrl}${proxyPath}${queryString}`;
 
-    // Headers pour la production
+    // Configuration des en-têtes
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       Accept: "application/json",
     };
 
-    const response = await fetch(`${baseUrl}/${url}${meta?.page ? "?page=" + meta.page : ""}`, {
+    // Requête fetch via le proxy
+    const response = await fetch(fullUrl, {
       method: "GET",
-      credentials: "include",
+      credentials: "include", // Inclure les cookies pour l'authentification
       headers,
     });
 
-    const json = await response.json();
+    // Gestion de la réponse
+    let json;
+    try {
+      json = await response.json();
+    } catch {
+      return {
+        status: "error",
+        message: "Réponse non-JSON de l'API",
+        data: { code: "INVALID_RESPONSE" },
+      };
+    }
 
+    // Gestion des erreurs HTTP
     if (!response.ok) {
       return {
         status: "error",
@@ -36,6 +56,7 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
       };
     }
 
+    // Gestion des erreurs retournées par l'API
     if (json.status === "error") {
       return {
         status: "error",
@@ -46,10 +67,13 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
 
     return json as APIResponse<T>;
   } catch (error) {
+    // Gestion des erreurs réseau ou inattendues
     return {
       status: "error",
       message: error instanceof Error ? error.message : "Une erreur réseau est survenue",
-      data: { code: error instanceof DOMException && error.name === "TimeoutError" ? "TIMEOUT" : "NETWORK_ERROR" },
+      data: {
+        code: error instanceof DOMException && error.name === "TimeoutError" ? "TIMEOUT" : "NETWORK_ERROR",
+      },
     };
   }
 }
