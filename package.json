@@ -19,5 +19,8 @@
   "homepage": "https://github.com/Dreyrk/Mobility_Challenge#readme",
   "dependencies": {
     "js-cookie": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.6"
   }
 }
