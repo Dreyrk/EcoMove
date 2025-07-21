@@ -3,6 +3,7 @@ import http from "http";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import morgan from "morgan";
 import activityRouter from "./routes/activity.routes";
 import authRouter from "./routes/auth.routes";
 import statsRouter from "./routes/stats.routes";
@@ -25,6 +26,7 @@ const corsOrigins = process.env.CORS_URLS?.split(",").filter((origin) => origin.
 app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(morgan("dev"));
 
 // Route racine pour vérifier l'état de l'API
 app.get("/", (_req, res) => {
