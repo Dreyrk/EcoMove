@@ -30,12 +30,12 @@ Ce projet est un monorepo conteneurisé avec Docker.
 2.  **Gèrer votre environnement :**
     via le fichier .env.sample :
 
-    ** Côté Backend **
+    **Côté Backend**
     Vous pouvez changer les variables si besoin:
     - JWT_SECRET: si vous souhaitez une secret aussi robuste que celle de la production: ```bash echo $(openssl rand -base64 32)```
     - CORS_URLS: Si vous souhaitez ajoutez d'autres services
   
-    ** Côté Frontend **
+    **Côté Frontend**
     Créer un fichier .env.local:
     - NEXT_PUBLIC_API_BASE_URL: Renseignez l'url de l'api (NEXT_PUBLIC_API_BASE_URL="http://localhost:4000" par exemple)
 
