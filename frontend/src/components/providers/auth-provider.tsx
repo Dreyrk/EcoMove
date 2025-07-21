@@ -3,6 +3,7 @@
 "use client";
 
 import getBaseUrl from "@/utils/getBaseUrl";
+import { getDataSafe } from "@/utils/getData";
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from "react";
 
 export interface User {
@@ -43,12 +44,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const getProfile = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/auth/profile`, {
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const data = await response.json();
+      const data = await getDataSafe<User>("api/auth/profile");
+      if (data.status === "success") {
         setUser(data.data);
       } else {
         setUser(null);

@@ -56,7 +56,7 @@ export default function Page() {
         if (stats) setUserStats(stats.data || defaultUserStats);
         if (progress) setProgressData(progress.data || []);
       } catch (e) {
-        setError("Une erreur est survenue lors du chargement des données");
+        setError(`Une erreur est survenue lors du chargement des données: ${(e as Error).message}`);
         toast.error("Erreur de chargement des données");
       } finally {
         setIsLoading(false);
