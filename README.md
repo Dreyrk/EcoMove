@@ -40,8 +40,15 @@ Ce projet est un monorepo conteneurisé avec Docker.
     ```
 
 3.  **Accédez à l'application :**
-    - **Frontend :** [http://localhost:3000](http://localhost:3000)
-    - **API Backend :** [http://localhost:4000](http://localhost:4000)
+
+    - **En local :**
+
+      - Frontend : [http://localhost:3000](http://localhost:3000)
+      - API Backend : [http://localhost:4000](http://localhost:4000)
+
+    - **En production (exemple) :**
+      - Frontend : [https://mobility-challenge.vercel.app/login](https://mobility-challenge.vercel.app/login)
+      - API Backend : [https://mobilitychallenge-production.up.railway.app/](https://mobilitychallenge-production.up.railway.app/)
 
 ## 🛠️ Stack Technique
 
