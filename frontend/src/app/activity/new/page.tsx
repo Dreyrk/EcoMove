@@ -1,5 +1,7 @@
 "use server";
 
+export const dynamic = "force-dynamic";
+
 import Layout from "@/components/layout/layout";
 import ActivityForm from "@/components/activity/activity-form";
 import RecentActivities from "@/components/activity/recent-activities";
