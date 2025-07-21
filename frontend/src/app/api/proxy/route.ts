@@ -1,51 +1,59 @@
-// Dans une API Route (ex: /pages/api/proxy.ts)
-import getBaseUrl from "@/utils/getBaseUrl";
-import { NextApiRequest, NextApiResponse } from "next";
+// src/app/api/proxy/route.ts
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import getBaseUrl from "@/utils/getBaseUrl";
 
-interface ProxyRequest extends NextApiRequest {
-  query: {
-    url?: string;
-  };
+export async function GET(request: Request) {
+  return handleRequest(request);
 }
 
-export default async function handler(req: ProxyRequest, res: NextApiResponse) {
-  // Extraire le token du cookie
+export async function POST(request: Request) {
+  return handleRequest(request);
+}
+
+export async function PUT(request: Request) {
+  return handleRequest(request);
+}
+
+export async function DELETE(request: Request) {
+  return handleRequest(request);
+}
+
+async function handleRequest(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const url = searchParams.get("url");
+
+  if (!url) {
+    return NextResponse.json({ error: "URL is required" }, { status: 400 });
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get("token");
 
-  // Vérifier si le token est présent
   if (!token) {
-    return res.status(401).json({ error: "Not authenticated" });
-  }
-
-  // Extraire l'URL de la requête
-  const { url } = req.query;
-
-  if (!url) {
-    return res.status(400).json({ error: "URL is required" });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const baseUrl = getBaseUrl();
 
   try {
-    // Faire la requête à l'API externe avec le token dans le header Authorization
     const response = await fetch(`${baseUrl}/${url}`, {
-      method: req.method, // Utiliser la méthode HTTP de la requête entrante
+      method: request.method,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token.value}`,
       },
-      body: req.method !== "GET" ? JSON.stringify(req.body) : undefined, // Inclure le corps pour les méthodes autres que GET
+      body: request.method !== "GET" ? await request.text() : undefined,
       credentials: "include",
     });
 
     const data = await response.json();
 
-    // Retourner la réponse de l'API externe au client
-    return res.status(response.status).json(data);
+    return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    // Gérer les erreurs
-    return res.status(500).json({ error: (error as Error).message });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
