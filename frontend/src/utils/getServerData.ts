@@ -5,65 +5,36 @@ import { isErrorResponse } from "./isErrorResponse";
 import getBaseUrl from "./getBaseUrl";
 import { cookies } from "next/headers";
 
-// Effectue une requête GET vers l'API via le proxy
+// Effectue une requête GET vers l'API
 export async function getServerData<T>(url: string): Promise<APIResponse<T> | APIErrorResponse> {
   try {
-    // Validation de l'URL
-    if (!url || typeof url !== "string" || url.trim() === "") {
-      return {
-        status: "error",
-        message: "URL invalide",
-        data: { code: "INVALID_URL" },
-      };
+    if (!url) {
+      return { status: "error", message: "URL invalide", data: { code: "INVALID_URL" } };
     }
 
-    // Construction de l'URL du proxy
-    const baseUrl = getBaseUrl();
-    if (!baseUrl) {
-      return {
-        status: "error",
-        message: "URL de base invalide",
-        data: { code: "INVALID_BASE_URL" },
-      };
-    }
-    const proxyPath = `/api/proxy/${url.replace(/^\/+/, "")}`; // Supprime les / initiaux
-    const fullUrl = `${baseUrl}${proxyPath}`;
-
-    // Récupération des cookies
     const cookieStore = await cookies();
     const authCookie = cookieStore.get("token");
 
-    // Configuration des en-têtes
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    };
+    const headers: Record<string, string> = {};
+
     if (authCookie) {
       headers.Cookie = `${authCookie.name}=${authCookie.value}`;
     }
 
-    // Requête fetch via le proxy
-    const response = await fetch(fullUrl, {
+    const baseUrl = getBaseUrl();
+    const response = await fetch(`${baseUrl}/${url}`, {
       method: "GET",
-      credentials: "include", // Inclure les cookies pour l'authentification
-      headers,
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
       // Timeout de 10 secondes
       signal: AbortSignal.timeout(10000),
     });
 
-    // Gestion de la réponse
-    let json;
-    try {
-      json = await response.json();
-    } catch {
-      return {
-        status: "error",
-        message: "Réponse non-JSON de l'API",
-        data: { code: "INVALID_RESPONSE" },
-      };
-    }
+    const json = await response.json();
 
-    // Gestion des erreurs HTTP
     if (!response.ok) {
       return {
         status: "error",
@@ -74,7 +45,6 @@ export async function getServerData<T>(url: string): Promise<APIResponse<T> | AP
       };
     }
 
-    // Gestion des erreurs retournées par l'API
     if (json.status === "error") {
       return {
         status: "error",
@@ -85,13 +55,10 @@ export async function getServerData<T>(url: string): Promise<APIResponse<T> | AP
 
     return json as APIResponse<T>;
   } catch (error) {
-    // Gestion des erreurs réseau ou inattendues
     return {
       status: "error",
       message: error instanceof Error ? error.message : "Une erreur réseau est survenue",
-      data: {
-        code: error instanceof DOMException && error.name === "TimeoutError" ? "TIMEOUT" : "NETWORK_ERROR",
-      },
+      data: { code: error instanceof DOMException && error.name === "TimeoutError" ? "TIMEOUT" : "NETWORK_ERROR" },
     };
   }
 }
