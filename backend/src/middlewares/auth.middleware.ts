@@ -18,7 +18,7 @@ class AuthMiddleware {
     // Récupération du token depuis les cookies ou l'en-tête Authorization
     let token = null;
 
-    token = req.cookies.token;
+    token = req.cookies.token || req.headers.cookie;
 
     // 2. Depuis l'header Authorization
     if (!token && req.headers.authorization) {
