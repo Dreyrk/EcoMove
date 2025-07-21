@@ -35,8 +35,6 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
       credentials: "include",
       headers,
       mode: "cors",
-      // Timeout de 10 secondes
-      signal: AbortSignal.timeout(10000),
     });
 
     const json = await response.json();
