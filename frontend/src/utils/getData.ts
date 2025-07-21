@@ -19,18 +19,10 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
       Accept: "application/json",
     };
 
-    // Récupération manuelle du token si nécessaire (fallback)
-    const token = getClientToken();
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
     const response = await fetch(`${baseUrl}/${url}${meta?.page ? "?page=" + meta.page : ""}`, {
       method: "GET",
       credentials: "include",
       headers,
-      mode: "cors",
     });
 
     const json = await response.json();
