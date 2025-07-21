@@ -2,8 +2,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import getBaseUrl from "@/utils/getBaseUrl";
 import { getDataSafe } from "@/utils/getData";
+import { getClientToken } from "@/utils/getToken";
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from "react";
 
 export interface User {
@@ -57,6 +57,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
+    console.log("window:", typeof window, "cookie:", document.cookie);
+    console.log("js-cookie:", getClientToken());
     getProfile();
   }, []);
 
