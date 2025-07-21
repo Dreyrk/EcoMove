@@ -56,8 +56,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    console.log("window:", typeof window, "cookie:", document.cookie);
-    console.log("js-cookie:", getClientToken());
     getProfile();
   }, []);
 
