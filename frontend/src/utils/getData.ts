@@ -22,6 +22,8 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
     // Récupération manuelle du token si nécessaire (fallback)
     const token = getClientToken();
 
+    console.log(token);
+
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
