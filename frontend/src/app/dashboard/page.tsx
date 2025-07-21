@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { getDataSafe } from "@/utils/getData";
 import { DailyProgress, UserStats } from "@/types";
 import LoadingPage from "@/components/loading-page";
+import { Button } from "@/components/ui/button";
 
 // Valeurs par défaut utilisées avant le chargement des vraies stats
 const defaultUserStats: UserStats = {
@@ -31,28 +32,60 @@ export default function Page() {
   const { user } = useAuth();
   const [userStats, setUserStats] = useState<UserStats>(defaultUserStats);
   const [progressData, setProgressData] = useState<DailyProgress[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!user) {
         toast.error("Authentification requise");
+        setIsLoading(false);
         return;
       }
 
-      // Récupération des statistiques générales et des données de progression
-      const stats = await getDataSafe<UserStats>(`api/stats/users/${user.id}`);
-      const progress = await getDataSafe<DailyProgress[]>(`api/stats/users/${user.id}/progress`);
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      if (stats) setUserStats(stats.data || defaultUserStats);
-      if (progress) setProgressData(progress.data || []);
+        // Récupération des statistiques générales et des données de progression
+        const [stats, progress] = await Promise.all([
+          getDataSafe<UserStats>(`api/stats/users/${user.id}`),
+          getDataSafe<DailyProgress[]>(`api/stats/users/${user.id}/progress`),
+        ]);
+
+        if (stats) setUserStats(stats.data || defaultUserStats);
+        if (progress) setProgressData(progress.data || []);
+      } catch (e) {
+        setError("Une erreur est survenue lors du chargement des données");
+        toast.error("Erreur de chargement des données");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
   }, [user]);
 
   // Affiche une page de chargement tant que les données ne sont pas disponibles
-  if (!progressData.length) {
+  if (isLoading) {
     return <LoadingPage />;
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <Button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              Réessayer
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
   }
 
   return (
