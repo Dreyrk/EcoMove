@@ -18,6 +18,7 @@ const port = process.env.PORT || 4000;
 // Configuration des origines CORS à partir de la variable d'environnement
 const corsOrigins = process.env.CORS_URLS?.split(",").filter((origin) => origin.trim() !== "") || [
   "http://localhost:3000",
+  "https://mobility-challenge.vercel.app",
 ];
 
 // Middlewares
