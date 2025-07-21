@@ -28,19 +28,21 @@ interface AuthResponse {
 
 export async function authFetcher(mode: AuthMode, data?: AuthFormData): Promise<AuthResponse> {
   try {
-    const baseUrl = getBaseUrl();
-    if (!baseUrl) {
-      return { success: false, message: "URL invalide" };
-    }
-
     // Construire l'URL pour le proxy
-    const proxyUrl = `/api/proxy?url=${encodeURIComponent(`api/auth/${mode}`)}`;
+    const proxyUrl = `/api/proxy/api/auth/${mode}`;
+
+    console.log("Interception de l'URL", proxyUrl);
+    console.log("Mode:", mode);
+    console.log("Données envoyées:", data);
+
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    };
 
     const res = await fetch(proxyUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       credentials: "include",
       body: JSON.stringify(data),
     });

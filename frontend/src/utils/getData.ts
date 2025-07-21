@@ -1,4 +1,3 @@
-// Importation des types et utilitaires
 import { APIResponse, APIErrorResponse, PaginationType } from "@/types";
 import { isErrorResponse } from "./isErrorResponse";
 
@@ -9,14 +8,13 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
       return { status: "error", message: "URL invalide", data: { code: "INVALID_URL" } };
     }
 
-    // Headers pour la production
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       Accept: "application/json",
     };
 
     // Construire l'URL pour le proxy
-    const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}${meta?.page ? `&page=${meta.page}` : ""}`;
+    const proxyUrl = `/api/proxy/${url}${meta?.page ? `&page=${meta.page}` : ""}`;
 
     const response = await fetch(proxyUrl, {
       method: "GET",

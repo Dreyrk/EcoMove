@@ -7,7 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-export default function PasswordInput({ className, ...props }: React.ComponentProps<"input">) {
+interface PasswordInputProps extends React.ComponentProps<"input"> {
+  text?: string;
+}
+
+export default function PasswordInput({ text = "Mot de passe", className, ...props }: PasswordInputProps) {
   const [showPassword, setShowPassword] = React.useState(false);
 
   const togglePasswordVisibility = () => {
@@ -16,7 +20,7 @@ export default function PasswordInput({ className, ...props }: React.ComponentPr
 
   return (
     <div className={cn("w-full space-y-2", className)}>
-      <Label htmlFor="password">Mot de passe</Label>
+      <Label htmlFor="password">{text}</Label>
       <div className="relative">
         <Input type={showPassword ? "text" : "password"} {...props} />
         <Button

@@ -61,6 +61,12 @@ export default function RegisterForm({ onRegisterSuccess }: { onRegisterSuccess:
         <PasswordInput name="password" id="password" />
         {state.errors?.password && <p className="text-sm text-red-600">{state.errors.password.join(",")}</p>}
       </div>
+      <div className="space-y-2">
+        <PasswordInput name="confirmPassword" id="confirmPassword" text="Confirmez votre mot de passe" />
+        {state.errors?.confirmPassword && (
+          <p className="text-sm text-red-600">{state.errors.confirmPassword.join(",")}</p>
+        )}
+      </div>
 
       <div className="space-y-2">
         <Label>Équipe</Label>
