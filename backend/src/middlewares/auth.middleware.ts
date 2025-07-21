@@ -33,7 +33,7 @@ class AuthMiddleware {
 
     // Vérification de la présence du token
     if (!token) {
-      throw new AppError("Authentification requise : aucun token fourni", 401);
+      throw new AppError(`Authentification requise : aucun token fourni ${token}`, 401);
     }
 
     try {
