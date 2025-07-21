@@ -14,7 +14,7 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
     };
 
     // Construire l'URL pour le proxy
-    const proxyUrl = `/api/proxy/${url}${meta?.page ? `&page=${meta.page}` : ""}`;
+    const proxyUrl = `/api/proxy/${url}${meta?.page ? `?page=${meta.page}` : ""}`;
 
     const response = await fetch(proxyUrl, {
       method: "GET",

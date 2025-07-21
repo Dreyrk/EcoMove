@@ -10,7 +10,7 @@ import PasswordInput from "../ui/password-input";
 import SubmitButton from "../ui/submit-button";
 import { useAuth } from "../providers/auth-provider";
 
-const initialState: FormState<LoginFields> = {
+const initialState: FormState<LoginFields> & { token?: string } = {
   success: false,
   errors: {},
 };
@@ -18,6 +18,7 @@ const initialState: FormState<LoginFields> = {
 export default function LoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const [state, formAction, isPending] = useActionState(login, initialState);
   const { getProfile } = useAuth();
+
   // Utilisation de la ref pour éviter le rerender
   const calledRef = useRef(false);
 

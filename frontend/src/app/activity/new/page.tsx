@@ -4,14 +4,14 @@ import Layout from "@/components/layout/layout";
 import ActivityForm from "@/components/activity/activity-form";
 import RecentActivities from "@/components/activity/recent-activities";
 import formatDateFr from "@/utils/formatDateFr";
-import { getServerSideProfile } from "@/actions/auth/getServerProfile";
 import { ActivityDataType } from "@/types";
 import LoadingPage from "@/components/loading-page";
 import { getDataSafe } from "@/utils/getData";
+import { User } from "@/components/providers/auth-provider";
 
 export default async function Page() {
   const date = formatDateFr(new Date());
-  const user = await getServerSideProfile();
+  const { data: user } = await getDataSafe<User>(`api/auth/profile`);
 
   if (!user) {
     return <LoadingPage />;

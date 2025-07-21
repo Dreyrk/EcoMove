@@ -7,11 +7,9 @@ import LoginForm from "@/components/login/login-form";
 import RegisterForm from "@/components/login/register-form";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [mode, setMode] = useState<"login" | "register">("login");
-  const router = useRouter();
 
   const onRegisterSuccess = () => {
     toast.success("Inscription réussie !", { description: "Vous pouvez vous connecter" });
@@ -20,8 +18,6 @@ export default function Page() {
 
   const onLoginSuccess = () => {
     toast.success("Connexion réussie !", { description: "Vous allez être redirigé vers votre dashboard" });
-
-    router.push("/dashboard");
   };
 
   return (

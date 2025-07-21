@@ -26,27 +26,27 @@ interface AuthResponse {
   };
 }
 
-export async function authFetcher(mode: AuthMode, data?: AuthFormData): Promise<AuthResponse> {
+export async function authFetcher(
+  mode: AuthMode,
+  data?: AuthFormData
+): Promise<AuthResponse & { token?: string | null }> {
   try {
-    // Construire l'URL pour le proxy
-    const proxyUrl = `/api/proxy/api/auth/${mode}`;
-
-    console.log("Interception de l'URL", proxyUrl);
-    console.log("Mode:", mode);
-    console.log("Données envoyées:", data);
+    const baseUrl = getBaseUrl();
+    const proxyUrl = `${baseUrl}/api/proxy/api/auth/${mode}`;
 
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       Accept: "application/json",
     };
 
-    const res = await fetch(proxyUrl, {
+    const fetchOptions: RequestInit = {
       method: "POST",
       headers,
-      credentials: "include",
       body: JSON.stringify(data),
-    });
+      credentials: "include",
+    };
 
+    const res = await fetch(proxyUrl, fetchOptions);
     const resData = await res.json();
 
     if (!res.ok) {
@@ -56,9 +56,28 @@ export async function authFetcher(mode: AuthMode, data?: AuthFormData): Promise<
       };
     }
 
+    const setCookie = res.headers.get("set-cookie");
+
+    if (setCookie) {
+      const cookiesTokenMatch = setCookie.match(/token=([^;]+)/);
+
+      if (cookiesTokenMatch && cookiesTokenMatch[1]) {
+        const token = cookiesTokenMatch[1];
+        return {
+          success: true,
+          data: resData.data || resData,
+          token,
+        };
+      } else {
+        return {
+          success: false,
+          message: "Pas de token dans les cookies",
+        };
+      }
+    }
     return {
-      success: true,
-      data: resData.data || resData,
+      success: false,
+      message: "Pas de cookies",
     };
   } catch (e) {
     return {
