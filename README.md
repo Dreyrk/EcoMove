@@ -55,6 +55,11 @@ Ce projet est un monorepo conteneurisé avec Docker.
     - **Frontend :** [http://localhost:3000](http://localhost:3000)
     - **API Backend :** [http://localhost:4000](http://localhost:4000)
 
+
+5.  **Identifiant de démonstration :**
+    email: admin@email.com
+    Mot de passe: password
+
 ## 🛠️ Stack Technique
 
 Ce projet est un monorepo structuré comme suit :
