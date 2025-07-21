@@ -84,6 +84,13 @@ Ce projet est un monorepo structuré comme suit :
   - **Langage :** [TypeScript](https://www.typescriptlang.org/)
   - **Styling :** [Tailwind CSS](https://tailwindcss.com/)
 
+## 📚 Documentation
+
+La documentation complète du projet est disponible sur Notion :  
+[📖 Accéder à la documentation Notion](https://topaz-turner-be7.notion.site/Challenge-Mobilit-Documentation-23618d5e5ff780a0abcaecec62e99a7a)  
+
+N’hésitez pas à consulter cette documentation pour comprendre l’architecture, les spécifications, et les guides de développement.
+
 ## ⚙️ Scripts utiles
 
 - `npm run dev`: Lance l'environnement de développement complet.
