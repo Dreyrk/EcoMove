@@ -84,8 +84,8 @@ export async function authFetcher(
       }
     }
     return {
-      success: false,
-      message: "Pas de cookies",
+      success: true,
+      message: `${mode} success`,
     };
   } catch (e) {
     return {
