@@ -27,7 +27,19 @@ Ce projet est un monorepo conteneurisé avec Docker.
     cd Mobility_Challenge
     ```
 
-2.  **Lancez l'application en mode développement :**
+2.  **Gèrer votre environnement :**
+    via le fichier .env.sample :
+
+    **Côté Backend**
+    Vous pouvez changer les variables si besoin:
+    - JWT_SECRET: si vous souhaitez une secret aussi robuste que celle de la production: ```bash echo $(openssl rand -base64 32)```
+    - CORS_URLS: Si vous souhaitez ajoutez d'autres services
+  
+    **Côté Frontend**
+    Créer un fichier .env.local:
+    - NEXT_PUBLIC_API_BASE_URL: Renseignez l'url de l'api (NEXT_PUBLIC_API_BASE_URL="http://localhost:4000" par exemple)
+
+3.  **Lancez l'application en mode développement :**
     Cette commande unique va :
 
     - Construire et lancer les conteneurs Docker (base de données, etc.).
@@ -49,6 +61,12 @@ Ce projet est un monorepo conteneurisé avec Docker.
     - **En production (exemple) :**
       - Frontend : [https://mobility-challenge.vercel.app/login](https://mobility-challenge.vercel.app/login)
       - API Backend : [https://mobilitychallenge-production.up.railway.app/](https://mobilitychallenge-production.up.railway.app/)
+
+
+5.  **Identifiant de démonstration :**
+    - **email**: admin@email.com
+    - **Mot de passe**: password
+
 
 ## 🛠️ Stack Technique
 
