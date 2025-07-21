@@ -11,12 +11,30 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
     }
 
     const baseUrl = getBaseUrl();
+
+    // Headers pour la production
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    };
+
+    // Récupération manuelle du token si nécessaire (fallback)
+    if (typeof window !== "undefined") {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1];
+
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+    }
+
     const response = await fetch(`${baseUrl}/${url}${meta?.page ? "?page=" + meta.page : ""}`, {
       method: "GET",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
+      mode: "cors",
       // Timeout de 10 secondes
       signal: AbortSignal.timeout(10000),
     });
