@@ -2,7 +2,6 @@
 import { APIResponse, APIErrorResponse, PaginationType } from "@/types";
 import getBaseUrl from "./getBaseUrl";
 import { isErrorResponse } from "./isErrorResponse";
-import { getClientToken } from "./getToken";
 
 // Effectue une requête GET vers l'API
 export async function getData<T>(url: string, meta?: PaginationType): Promise<APIResponse<T> | APIErrorResponse> {

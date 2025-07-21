@@ -3,7 +3,6 @@
 "use client";
 
 import { getDataSafe } from "@/utils/getData";
-import { getClientToken } from "@/utils/getToken";
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from "react";
 
 export interface User {
