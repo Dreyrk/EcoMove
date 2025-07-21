@@ -57,8 +57,11 @@ Ce projet est un monorepo conteneurisé avec Docker.
 
 
 5.  **Identifiant de démonstration :**
+   
+
     email: admin@email.com
     Mot de passe: password
+
 
 ## 🛠️ Stack Technique
 
