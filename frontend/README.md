@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend - Challenge Mobilité
 
-## Getting Started
+Ce dossier contient l’application frontend de l’outil Challenge Mobilité, développée avec **Next.js**, **TypeScript** et **Tailwind CSS**.
 
-First, run the development server:
+---
+
+## 🚀 Démarrage rapide
+
+### Prérequis
+
+- Node.js v18 ou supérieur
+- Le backend doit être lancé et accessible (par défaut sur `http://localhost:4000`)
+
+### Installation
+
+Depuis la racine du projet ou depuis le dossier frontend :
+
+```bash
+npm install
+```
+
+Lancer en mode développement
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L’application sera accessible à http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Le serveur backend doit tourner simultanément pour que les appels API fonctionnent.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**📁 Architecture du frontend**
+src/app/ : Contient les routes et pages (Next.js App Router)
 
-## Learn More
+src/components/ : Composants React, organisés par pages ou modules
 
-To learn more about Next.js, take a look at the following resources:
+src/actions/ : Server Actions Next.js (fonctions côté serveur appelées depuis le frontend)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+src/lib/ : Librairies et configurations partagées
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+src/utils/ : Fonctions utilitaires diverses
 
-## Deploy on Vercel
+src/types/ : Types TypeScript globalement utilisés
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+src/tests/ : Tests unitaires frontend (Jest, React Testing Library)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**⚙️ Scripts utiles**
+npm run dev : Lance l’application en mode développement
+
+npm run build : Compile et optimise pour la production
+
+npm run start : Démarre le serveur de production (après build)
+
+npm run lint : Lance ESLint pour vérifier la qualité du code
+
+**🛡️ Sécurité et middleware**
+Les routes sensibles sont protégées par un middleware (middleware.ts) qui vérifie l’authentification et les rôles utilisateur (admin, user).
+
+**📖 Bonnes pratiques et conventions**
+Code écrit en TypeScript avec typage strict
+
+Composants fonctionnels React avec hooks
+
+Validation des formulaires côté serveur via Zod
+
+Utilisation de Server Actions Next.js pour le backend dans le frontend
+
+Styles avec Tailwind CSS pour une rapidité et cohérence visuelle
+
+ESLint et Prettier configurés pour un code propre et cohérent
+
+**🧪 Tests**
+Les tests unitaires sont écrits avec Jest et React Testing Library, exécutables via :
+
+```bash
+npm run test
+```
