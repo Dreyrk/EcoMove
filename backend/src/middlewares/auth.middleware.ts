@@ -16,6 +16,8 @@ class AuthMiddleware {
   // Middleware pour vérifier l'authentification via un token JWT
   verifyToken = (req: Request, res: Response, next: NextFunction) => {
     // Récupération du token depuis les cookies ou l'en-tête Authorization
+    console.log(req);
+
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
     // Vérification de la présence du token
