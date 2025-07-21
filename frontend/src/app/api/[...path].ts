@@ -1,7 +1,8 @@
+import getBaseUrl from "@/utils/getBaseUrl";
 import httpProxy from "http-proxy";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const API_URL = process.env.API_URL;
+const API_URL = getBaseUrl();
 
 // Mise en place d'un proxy pour les requête Next js
 const proxy = httpProxy.createProxyServer({

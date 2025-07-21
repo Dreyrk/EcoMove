@@ -1,3 +1,4 @@
+import buildApiProxyUrl from "./buildApiProxyUrl";
 import getBaseUrl from "./getBaseUrl";
 
 type AuthMode = "login" | "register" | "logout";
@@ -32,7 +33,7 @@ export async function authFetcher(
 ): Promise<AuthResponse & { token?: string | null }> {
   try {
     const baseUrl = getBaseUrl();
-    const proxyUrl = `${baseUrl}/api/proxy/api/auth/${mode}`;
+    const relativeUrl = `${baseUrl}/api/auth/${mode}`;
 
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -46,10 +47,17 @@ export async function authFetcher(
       credentials: "include",
     };
 
-    const res = await fetch(proxyUrl, fetchOptions);
+    const res = await fetch(relativeUrl, fetchOptions);
+    console.log(res);
     const resData = await res.json();
 
     if (!res.ok) {
+      if (res.status === 404) {
+        return {
+          success: false,
+          message: "Mauvaise URL de fetch (souvent dans server action)",
+        };
+      }
       return {
         success: false,
         message: resData.message || resData.error || "Erreur inconnue",

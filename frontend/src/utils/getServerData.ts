@@ -1,9 +1,11 @@
-import { APIResponse, APIErrorResponse, PaginationType } from "@/types";
-import { isErrorResponse } from "./isErrorResponse";
-import buildApiProxyUrl from "./buildApiProxyUrl";
+"use server";
 
-// Effectue une requête GET vers l'API via le proxy (à utiliser uniquement coté client)
-export async function getData<T>(url: string, meta?: PaginationType): Promise<APIResponse<T> | APIErrorResponse> {
+import { cookies } from "next/headers";
+import getBaseUrl from "./getBaseUrl";
+import { APIErrorResponse, APIResponse, PaginationType } from "@/types";
+import { isErrorResponse } from "./isErrorResponse";
+
+export async function getServerData<T>(url: string, meta?: PaginationType): Promise<APIResponse<T> | APIErrorResponse> {
   try {
     if (!url) {
       return { status: "error", message: "URL invalide", data: { code: "INVALID_URL" } };
@@ -14,8 +16,19 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
       Accept: "application/json",
     };
 
-    // Construire l'URL pour le proxy
-    const apiUrl = buildApiProxyUrl(url, meta);
+    const baseUrl = getBaseUrl();
+    const query = meta?.page ? `?page=${meta.page}` : "";
+    const apiUrl = `${baseUrl}/${url}/${query}`;
+
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore
+      .getAll()
+      .map(({ name, value }) => `${name}=${value}`)
+      .join("; ");
+
+    if (cookieHeader) {
+      headers["cookie"] = cookieHeader;
+    }
 
     const response = await fetch(apiUrl, {
       method: "GET",
@@ -54,8 +67,8 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
 }
 
 // Effectue une requête GET avec garantie de réponse de succès
-export async function getDataSafe<T>(url: string, meta?: PaginationType): Promise<APIResponse<T>> {
-  const response = await getData<T>(url, meta);
+export async function getServerDataSafe<T>(url: string, meta?: PaginationType): Promise<APIResponse<T>> {
+  const response = await getServerData<T>(url, meta);
   if (isErrorResponse(response)) {
     throw new Error(`${response.message}${response.data?.code ? ` (${response.data.code})` : ""}`);
   }
