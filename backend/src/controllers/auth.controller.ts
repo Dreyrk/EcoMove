@@ -64,7 +64,7 @@ class AuthController {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
-          sameSite: "lax",
+          sameSite: "none",
         })
         .status(200)
         .json(successResponse({ user }));
@@ -86,7 +86,7 @@ class AuthController {
         .clearCookie("token", {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
+          sameSite: "none",
         })
         .status(200)
         .json(successResponse(null, { message: "Déconnexion réussie" }));
