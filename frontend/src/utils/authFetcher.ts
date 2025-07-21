@@ -29,12 +29,14 @@ interface AuthResponse {
 export async function authFetcher(mode: AuthMode, data?: AuthFormData): Promise<AuthResponse> {
   try {
     const baseUrl = getBaseUrl();
-
     if (!baseUrl) {
       return { success: false, message: "URL invalide" };
     }
 
-    const res = await fetch(`${baseUrl}/api/auth/${mode}`, {
+    // Construire l'URL pour le proxy
+    const proxyUrl = `/api/proxy?url=${encodeURIComponent(`api/auth/${mode}`)}`;
+
+    const res = await fetch(proxyUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,6 +44,7 @@ export async function authFetcher(mode: AuthMode, data?: AuthFormData): Promise<
       credentials: "include",
       body: JSON.stringify(data),
     });
+
     const resData = await res.json();
 
     if (!res.ok) {

@@ -1,16 +1,13 @@
 // Importation des types et utilitaires
 import { APIResponse, APIErrorResponse, PaginationType } from "@/types";
-import getBaseUrl from "./getBaseUrl";
 import { isErrorResponse } from "./isErrorResponse";
 
-// Effectue une requête GET vers l'API
+// Effectue une requête GET vers l'API via le proxy
 export async function getData<T>(url: string, meta?: PaginationType): Promise<APIResponse<T> | APIErrorResponse> {
   try {
     if (!url) {
       return { status: "error", message: "URL invalide", data: { code: "INVALID_URL" } };
     }
-
-    const baseUrl = getBaseUrl();
 
     // Headers pour la production
     const headers: HeadersInit = {
@@ -18,7 +15,10 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
       Accept: "application/json",
     };
 
-    const response = await fetch(`${baseUrl}/${url}${meta?.page ? "?page=" + meta.page : ""}`, {
+    // Construire l'URL pour le proxy
+    const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}${meta?.page ? `&page=${meta.page}` : ""}`;
+
+    const response = await fetch(proxyUrl, {
       method: "GET",
       credentials: "include",
       headers,
@@ -57,10 +57,8 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
 // Effectue une requête GET avec garantie de réponse de succès
 export async function getDataSafe<T>(url: string, meta?: PaginationType): Promise<APIResponse<T>> {
   const response = await getData<T>(url, meta);
-
   if (isErrorResponse(response)) {
     throw new Error(`${response.message}${response.data?.code ? ` (${response.data.code})` : ""}`);
   }
-
   return response;
 }
