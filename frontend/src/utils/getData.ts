@@ -2,6 +2,7 @@
 import { APIResponse, APIErrorResponse, PaginationType } from "@/types";
 import getBaseUrl from "./getBaseUrl";
 import { isErrorResponse } from "./isErrorResponse";
+import { getToken } from "./getToken";
 
 // Effectue une requête GET vers l'API
 export async function getData<T>(url: string, meta?: PaginationType): Promise<APIResponse<T> | APIErrorResponse> {
@@ -19,15 +20,10 @@ export async function getData<T>(url: string, meta?: PaginationType): Promise<AP
     };
 
     // Récupération manuelle du token si nécessaire (fallback)
-    if (typeof window !== "undefined") {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
+    const token = getToken();
 
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(`${baseUrl}/${url}${meta?.page ? "?page=" + meta.page : ""}`, {
