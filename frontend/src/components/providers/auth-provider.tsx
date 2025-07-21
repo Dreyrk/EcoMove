@@ -2,7 +2,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import getBaseUrl from "@/utils/getBaseUrl";
 import { getDataSafe } from "@/utils/getData";
 import { createContext, useContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from "react";
 
@@ -41,14 +40,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_URL = getBaseUrl();
-
   const getProfile = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/profile`, { credentials: "include" });
-
-      const data = await res.json();
-
+      const data = await getDataSafe<User>("api/auth/profile");
       if (data.status === "success") {
         setUser(data.data);
       } else {

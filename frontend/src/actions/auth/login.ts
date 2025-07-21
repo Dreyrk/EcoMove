@@ -37,6 +37,8 @@ export default async function login(
       body: JSON.stringify(result.data),
     });
 
+    console.log(baseUrl);
+
     const responseData = await response.json();
 
     if (!response.ok) {

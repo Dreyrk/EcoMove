@@ -39,7 +39,7 @@ export async function authFetcher(mode: AuthMode, data?: AuthFormData): Promise<
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", // Pour recevoir et envoyer les cookies
+      credentials: "include",
       body: JSON.stringify(data),
     });
     const resData = await res.json();
