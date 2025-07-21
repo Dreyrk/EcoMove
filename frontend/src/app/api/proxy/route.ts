@@ -11,7 +11,7 @@ interface ProxyRequest extends NextApiRequest {
 
 export default async function handler(req: ProxyRequest, res: NextApiResponse) {
   // Extraire le token du cookie
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get("token");
 
   // Vérifier si le token est présent
