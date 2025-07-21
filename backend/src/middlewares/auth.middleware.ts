@@ -18,15 +18,16 @@ class AuthMiddleware {
     // Récupération du token depuis les cookies ou l'en-tête Authorization
     let token = null;
 
-    token = req.cookies.token || req.headers.cookie;
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    }
 
-    // 2. Depuis l'header Authorization
+    // 2. En fallback, inspecter l'en-tête Authorization (Bearer ...)
     if (!token && req.headers.authorization) {
       const authHeader = req.headers.authorization;
       if (authHeader.startsWith("Bearer ")) {
         token = authHeader.split(" ")[1];
       } else {
-        // Parfois le Bearer peut être omis
         token = authHeader;
       }
     }
