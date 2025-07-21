@@ -5,9 +5,9 @@ import ActivityForm from "@/components/activity/activity-form";
 import RecentActivities from "@/components/activity/recent-activities";
 import formatDateFr from "@/utils/formatDateFr";
 import { getServerSideProfile } from "@/actions/auth/getServerProfile";
-import { getServerDataSafe } from "@/utils/getServerData";
 import { ActivityDataType } from "@/types";
 import LoadingPage from "@/components/loading-page";
+import { getDataSafe } from "@/utils/getData";
 
 export default async function Page() {
   const date = formatDateFr(new Date());
@@ -17,7 +17,7 @@ export default async function Page() {
     return <LoadingPage />;
   }
 
-  const activities = await getServerDataSafe<ActivityDataType[]>(`api/activities/user/${user.id}`);
+  const activities = await getDataSafe<ActivityDataType[]>(`api/activities/user/${user.id}`);
 
   // Vérifie si une activité est déjà enregistrée pour aujourd’hui
   const hasActivityForDate =
