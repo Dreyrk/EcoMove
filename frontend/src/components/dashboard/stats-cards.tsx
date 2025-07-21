@@ -13,7 +13,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
         title="Total Distance"
         icon={<Target className="h-4 w-4 text-muted-foreground" />}
         value={`${stats.totalKm} km`}
-        subtitle="+12.3 km depuis la semaine dernière"
+        subtitle=""
       />
       <StatCard
         title="Moyenne journalière"
