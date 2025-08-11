@@ -1,13 +1,12 @@
 # Challenge Mobilité
 
-Ce projet est une application web conçue pour le "Challenge Mobilité", visant à encourager et suivre les modes de transport durables des employés pour leurs trajets domicile-travail. L'application permet aux entreprises de créer des défis, aux employés de déclarer leurs trajets, et de visualiser les résultats via un classement général.
+Ce projet est une application web conçue pour encourager et suivre les modes de transport durables des employés pour leurs trajets domicile-travail. L'application permet aux employés de déclarer leurs trajets et de visualiser les résultats via un classement général (individuel ou par équipe/service).
 
 ## ✨ Fonctionnalités
 
-- **Espace Administrateur :** Gestion des entreprises, des utilisateurs et des défis.
-- **Espace Employé :** Inscription, déclaration des trajets (vélo, covoiturage, transports en commun, etc.) et consultation des classements.
-- **Gestion des Défis :** Création de défis sur des périodes données avec des objectifs spécifiques.
-- **Classement en Temps Réel :** Suivi des performances individuelles et par entreprise, basé sur les kilomètres parcourus en mobilité douce.
+- **Espace Administrateur :** Gestion des équipes, des utilisateurs, et des activités.
+- **Espace Employé :** Inscription, déclaration des trajets (vélo ou marche) et consultation des classements.
+- **Classement en Temps Réel :** Suivi des performances individuelles et par équipe, basé sur les kilomètres parcourus en mobilité douce.
 
 ## 🚀 Démarrage Rapide
 
