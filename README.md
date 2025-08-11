@@ -22,8 +22,8 @@ Ce projet est un monorepo conteneurisé avec Docker.
 1.  **Clonez le dépôt :**
 
     ```bash
-    git clone git@github.com:Dreyrk/Mobility_Challenge.git
-    cd Mobility_Challenge
+    git clone git@github.com:Dreyrk/EcoMove.git
+    cd EcoMove
     ```
 
 2.  **Gèrer votre environnement :**
@@ -31,7 +31,7 @@ Ce projet est un monorepo conteneurisé avec Docker.
 
     **Côté Backend**
     Vous pouvez changer les variables si besoin:
-    - JWT_SECRET: si vous souhaitez une secret aussi robuste que celle de la production: ```bash echo $(openssl rand -base64 32)```
+    - JWT_SECRET: si vous souhaitez une secret robuste: ```bash echo $(openssl rand -base64 32)```
     - CORS_URLS: Si vous souhaitez ajoutez d'autres services
   
     **Côté Frontend**
@@ -41,7 +41,7 @@ Ce projet est un monorepo conteneurisé avec Docker.
 3.  **Lancez l'application en mode développement :**
     Cette commande unique va :
 
-    - Construire et lancer les conteneurs Docker (base de données, etc.).
+    - Construire et lancer les conteneurs Docker (base de données, API, client).
     - Démarrer le serveur backend.
     - Démarrer l'application frontend.
     - Populer la base de données avec des données de test.
@@ -60,11 +60,6 @@ Ce projet est un monorepo conteneurisé avec Docker.
     - **En production (exemple) :**
       - Frontend : [https://mobility-challenge.vercel.app/](https://mobility-challenge.vercel.app/)
       - API Backend : [https://mobilitychallenge-production.up.railway.app/](https://mobilitychallenge-production.up.railway.app/)
-
-
-5.  **Identifiant de démonstration :**
-    - **email**: admin@email.com
-    - **Mot de passe**: password
 
 
 ## 🛠️ Stack Technique
