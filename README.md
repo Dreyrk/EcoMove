@@ -1,4 +1,4 @@
-# Challenge Mobilité
+# EcoMove
 
 Ce projet est une application web conçue pour encourager et suivre les modes de transport durables des employés pour leurs trajets domicile-travail. L'application permet aux employés de déclarer leurs trajets et de visualiser les résultats via un classement général (individuel ou par équipe/service).
 
